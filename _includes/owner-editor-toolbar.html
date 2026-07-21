@@ -1,0 +1,17 @@
+<div id="owner-editor-toolbar" class="owner-editor-toolbar" hidden aria-label="소유자 편집 도구">
+  <div class="owner-editor-toolbar-header">
+    <span class="owner-editor-owner-badge" aria-hidden="true">Owner</span>
+    <span id="owner-editor-status" class="owner-editor-status">로그인 확인 중</span>
+  </div>
+  <div class="owner-editor-toolbar-actions">
+    <button type="button" data-editor-action="new-post">새 글 작성</button>
+    <button type="button" data-editor-action="edit-current-post"{% unless page.layout == 'post' %} hidden{% endunless %}>현재 게시글 수정</button>
+    <button type="button" data-editor-action="edit-current-project"{% unless page.layout == 'project' %} hidden{% endunless %}>현재 프로젝트 수정</button>
+    <button type="button" data-editor-action="edit-about">About 수정</button>
+    <button type="button" data-editor-action="edit-contact">Contact 수정</button>
+    <button type="button" data-editor-action="edit-profile">프로필 수정</button>
+    <button type="button" data-editor-action="edit-skills">기술 목록 수정</button>
+    <button type="button" data-editor-action="upload-image">이미지 업로드</button>
+    <button type="button" class="owner-editor-logout" data-editor-action="logout">로그아웃</button>
+  </div>
+</div>

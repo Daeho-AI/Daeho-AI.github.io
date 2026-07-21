@@ -55,7 +55,6 @@
 
   function applyTheme(theme) {
     root.setAttribute("data-theme", theme);
-    root.style.colorScheme = theme;
     updateThemeControls(theme);
   }
 

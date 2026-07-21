@@ -1,6 +1,8 @@
 # Daeho-AI.github.io
 
-이 저장소는 GitHub Pages가 직접 빌드하는 Jekyll 기반 개인 블로그입니다. 별도의 관리자 페이지, 데이터베이스, Node.js 또는 npm 빌드 없이 YAML과 Markdown 파일을 수정해 콘텐츠를 관리할 수 있습니다.
+이 저장소는 GitHub Pages가 직접 빌드하는 Jekyll 기반 개인 블로그입니다. 일반 방문자는 기존 공개 화면을 읽기만 하고, 저장소 소유자는 같은 블로그 화면에서 로그인해 글·프로젝트·프로필을 편집할 수 있습니다. 별도 `/admin/` 페이지나 Pages CMS는 사용하지 않습니다.
+
+공개 사이트와 콘텐츠 렌더링은 GitHub Pages/Jekyll이 계속 담당합니다. GitHub 로그인, 소유자·쓰기 권한 확인, 세션 발급과 저장소 커밋은 `editor-api/`의 Cloudflare Worker가 담당하고, 브라우저에는 GitHub 액세스 토큰을 전달하지 않습니다.
 
 ## 빠른 수정 위치
 
@@ -19,6 +21,30 @@
 
 확인된 정보만 공개하기 위해 현재 이름은 `Daeho-AI`, GitHub 주소는 `https://github.com/Daeho-AI`로 설정되어 있습니다. 이메일, 위치, 직함, 소개, LinkedIn, 프로필 이미지와 기술 목록은 비어 있습니다.
 
+## 소유자 편집 모드
+
+일상적인 콘텐츠 관리는 공개 블로그 안의 소유자 편집 모드를 사용합니다.
+
+1. `https://daeho-ai.github.io/?edit=1`을 열거나 블로그에서 `Ctrl+Shift+E`를 누릅니다.
+2. 오른쪽 아래의 **소유자 로그인**을 선택해 GitHub 팝업 로그인을 완료합니다.
+3. 로그인 계정이 정확히 `Daeho-AI`이고 이 저장소에 쓰기 권한이 있을 때만 편집 툴바가 열립니다.
+4. 새 글, 현재 게시글·프로젝트, About, Contact, 프로필, 기술 목록을 같은 화면의 편집 패널에서 수정합니다.
+5. 저장하면 Worker가 `main` 브랜치에 커밋하고 커밋 링크와 Pages 배포 대기 안내를 표시합니다.
+
+툴바의 **이미지 업로드**는 파일을 `assets/images/uploads/YYYY/MM/`에 저장하고 Markdown에서 사용할 경로를 돌려줍니다. 편집 세션은 짧게 유지되며, 로그아웃하거나 만료되면 다시 인증해야 합니다.
+
+### 보안 경계
+
+- GitHub OAuth `state`와 PKCE 검증, 세션 저장, GitHub 사용자 확인과 저장소 쓰기 권한 확인은 Worker에서 수행합니다.
+- 허용된 저장소, 브랜치와 파일 경로만 수정할 수 있습니다. 브라우저가 임의 경로나 다른 저장소를 요청해도 Worker가 거부합니다.
+- 기존 파일 수정에는 현재 GitHub blob SHA가 필요하므로, 다른 변경과 충돌하면 덮어쓰지 않고 다시 불러오도록 안내합니다.
+- CORS는 공개 블로그 origin만 허용하고, GitHub 액세스 토큰은 Worker의 세션 저장소 밖으로 노출하지 않습니다.
+- 공개 페이지 CSP는 저장소의 스크립트와 설정된 Worker 연결만 허용합니다. 콘텐츠는 Markdown을 기본으로 작성하며 raw HTML의 인라인 스크립트는 실행되지 않습니다.
+
+설치·비밀 값·GitHub App 권한·Cloudflare 배포 방법은 [`editor-api/README.md`](editor-api/README.md)에 정리되어 있습니다. 편집기 소스를 바꾼 경우에는 [`tools/owner-editor-ui`](tools/owner-editor-ui)의 빌드 명령으로 `assets/js/owner-editor.bundle.js`를 다시 생성해야 합니다.
+
+아래의 저장소 직접 수정 방법은 Worker 장애나 긴급 복구 때 사용하는 비상 절차입니다.
+
 ## 1. 사이트 구조 설명
 
 콘텐츠와 디자인은 다음처럼 분리되어 있습니다.
@@ -32,7 +58,10 @@ _layouts/                   페이지 종류별 HTML 뼈대
 _includes/                  여러 화면에서 공유하는 HTML 조각
 assets/css/main.css         색상, 글꼴, 간격, 반응형 디자인
 assets/js/main.js           모바일 메뉴와 테마 전환
+assets/js/owner-editor.bundle.js  공개 화면 내 소유자 편집기
 assets/images/              사이트에서 사용하는 이미지
+editor-api/                 GitHub 인증·저장을 담당하는 Cloudflare Worker
+tools/owner-editor-ui/      소유자 편집기 TypeScript 소스와 빌드 설정
 templates/                  게시글과 프로젝트 작성 원본
 index.html                  홈
 blog.md                     블로그 목록
@@ -95,7 +124,7 @@ categories:
 
 카테고리와 기술은 필요한 만큼 추가하거나 삭제할 수 있습니다. AI / Machine Learning, Automotive Security, Cybersecurity, Vehicle Networks, LLM / RAG, Programming, Research 등은 구조를 설명하기 위한 카테고리 예시일 뿐 현재 프로필의 실제 기술로 등록되어 있지 않습니다.
 
-## 6. 새 블로그 게시글 작성 방법
+## 6. 비상용: 저장소에서 새 블로그 게시글 작성
 
 가장 안전한 방법은 `templates/post-template.md`를 복사하는 것입니다. GitHub 웹 화면에서는 다음 순서로 작성합니다.
 
@@ -127,7 +156,7 @@ categories:
 
 초안을 작성할 때는 `false`로 시작하고, 제목·날짜·본문·링크를 확인한 뒤 `true`로 바꾸세요. 단순히 목록에서만 숨기는 방식이 아니라 Jekyll 빌드 결과에서 제외되므로 초안 공개를 막는 데 더 안전합니다.
 
-## 9. 새 프로젝트 추가 방법
+## 9. 비상용: 저장소에서 새 프로젝트 추가
 
 1. `templates/project-template.md`의 내용을 복사합니다.
 2. `_projects` 폴더에 `영문주소.md` 파일을 만듭니다. 예: `_projects/my-project.md`.
@@ -139,7 +168,7 @@ categories:
 
 front matter 아래에는 프로젝트 목적, 진행 내용과 검증 가능한 결과를 Markdown으로 작성합니다. 확인되지 않은 성과, 역할이나 수치는 입력하지 마세요. 주소가 빈 외부 링크는 화면에 표시되지 않습니다.
 
-## 10. 이미지 업로드 및 사용 방법
+## 10. 비상용: 저장소에서 이미지 업로드
 
 GitHub 웹 화면에서 `assets/images` 폴더를 열고 **Add file → Upload files**로 이미지를 올립니다. 파일 이름은 공백 대신 하이픈을 사용하고 영문 소문자로 작성하는 것이 좋습니다.
 
@@ -177,7 +206,7 @@ Markdown 본문에서는 다음처럼 `relative_url` 필터를 사용합니다.
 
 ## 12. 로컬 미리보기 방법
 
-로컬 미리보기는 선택 사항이며 사이트 배포에 Node.js나 npm은 필요하지 않습니다.
+로컬 미리보기는 선택 사항이며, 이미 생성된 편집기 번들을 포함한 사이트 배포 자체에는 Node.js나 npm이 필요하지 않습니다. 편집기 TypeScript 소스를 수정하고 번들을 다시 만들 때만 Node.js가 필요합니다.
 
 1. Ruby와 RubyGems를 설치합니다.
 2. 터미널에서 저장소 루트로 이동합니다.

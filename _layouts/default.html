@@ -20,6 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#ffffff">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'{% if site.data.editor.enabled and site.data.editor.api_base_url != '' %} {{ site.data.editor.api_base_url | escape }}{% endif %}; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'">
     <title>{{ document_title | escape }}</title>
     <meta name="description" content="{{ meta_description | escape }}">
     <link rel="canonical" href="{{ page.url | absolute_url }}">
@@ -37,7 +38,9 @@
 
     <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}?v={{ asset_version }}">
+    <link rel="stylesheet" href="{{ '/assets/css/owner-editor.css' | relative_url }}?v={{ asset_version }}">
     <script src="{{ '/assets/js/main.js' | relative_url }}?v={{ asset_version }}" defer></script>
+    <script src="{{ '/assets/js/owner-editor.bundle.js' | relative_url }}?v={{ asset_version }}" defer></script>
   </head>
   <body class="layout-{{ page.layout | default: 'default' }}{% if page.body_class %} {{ page.body_class }}{% endif %}">
     <a class="skip-link" href="#main-content">본문으로 바로 가기</a>
@@ -48,5 +51,6 @@
       </main>
       {% include footer.html %}
     </div>
+    {% include owner-editor.html %}
   </body>
 </html>

@@ -1,0 +1,52 @@
+{% assign editor = site.data.editor %}
+{% assign editor_page_kind = 'page' %}
+{% if page.layout == 'post' %}
+  {% assign editor_page_kind = 'post' %}
+{% elsif page.layout == 'project' %}
+  {% assign editor_page_kind = 'project' %}
+{% elsif page.path == 'about.md' %}
+  {% assign editor_page_kind = 'about' %}
+{% elsif page.path == 'contact.md' %}
+  {% assign editor_page_kind = 'contact' %}
+{% endif %}
+<div
+  id="owner-editor-root"
+  class="owner-editor"
+  data-enabled="{{ editor.enabled | default: false }}"
+  data-api-base="{{ editor.api_base_url | default: '' | escape }}"
+  data-owner-login="{{ editor.owner_login | default: 'Daeho-AI' | escape }}"
+  data-repository="{{ editor.repository | default: 'Daeho-AI/Daeho-AI.github.io' | escape }}"
+  data-branch="{{ editor.branch | default: 'main' | escape }}"
+  data-page-kind="{{ editor_page_kind }}"
+  data-page-path="{{ page.path | default: '' | escape }}"
+  data-page-title="{{ page.title | default: site.title | escape }}"
+  hidden
+>
+  <button id="owner-editor-login" class="owner-editor-login" type="button" hidden>
+    소유자 로그인
+  </button>
+
+  {% include owner-editor-toolbar.html %}
+
+  <dialog id="owner-editor-panel" class="owner-editor-panel" aria-labelledby="owner-editor-panel-title">
+    <div class="owner-editor-panel-shell">
+      <header class="owner-editor-panel-header">
+        <div>
+          <span class="owner-editor-eyebrow">Daeho-AI · Owner editor</span>
+          <h2 id="owner-editor-panel-title">콘텐츠 편집</h2>
+        </div>
+        <button type="button" class="owner-editor-close" data-editor-close aria-label="편집 창 닫기">×</button>
+      </header>
+      <form id="owner-editor-form" class="owner-editor-form">
+        <div id="owner-editor-panel-status" class="owner-editor-panel-status" role="status" aria-live="polite" hidden></div>
+        <div id="owner-editor-fields" class="owner-editor-fields"></div>
+        <footer class="owner-editor-form-footer">
+          <button type="button" class="owner-editor-button owner-editor-button-secondary" data-editor-close>취소</button>
+          <button type="submit" class="owner-editor-button owner-editor-button-primary" data-editor-save>저장하고 커밋</button>
+        </footer>
+      </form>
+    </div>
+  </dialog>
+
+  <div id="owner-editor-toast" class="owner-editor-toast" role="status" aria-live="polite" hidden></div>
+</div>

@@ -30,6 +30,12 @@ defaults:
 exclude:
   - README.md
   - templates
+  - tools
+  - editor-api
+  - package.json
+  - package-lock.json
+  - node_modules
+  - tsconfig.json
   - Gemfile
   - Gemfile.lock
   - vendor
