@@ -1,0 +1,39 @@
+title: "Personal Blog"
+description: "GitHub Pages 기반 개인 기술 블로그"
+url: "https://daeho-ai.github.io"
+baseurl: ""
+lang: "ko"
+timezone: "Asia/Seoul"
+encoding: "utf-8"
+
+markdown: kramdown
+permalink: /blog/:year/:month/:day/:title/
+
+collections:
+  projects:
+    output: true
+    permalink: /projects/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+  - scope:
+      path: ""
+      type: projects
+    values:
+      layout: project
+
+# GitHub Pages 기본 Jekyll 기능만 사용합니다. plugins 항목을 추가하지 마세요.
+exclude:
+  - README.md
+  - templates
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - .bundle
+  - .jekyll-cache
+  - .sass-cache
+  - work

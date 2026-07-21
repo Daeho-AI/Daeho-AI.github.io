@@ -1,0 +1,59 @@
+{% assign profile = site.data.profile %}
+{% assign brand_name = profile.display_name | default: profile.name | default: site.title %}
+{% assign navigation_items = site.data.navigation | sort: 'order' %}
+{% assign current_url = page.url | replace: 'index.html', '' %}
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="site-brand" href="{{ '/' | relative_url }}" aria-label="{{ brand_name | escape }} 홈">
+      {{ brand_name | escape }}
+    </a>
+
+    <div class="header-actions">
+      <nav id="site-navigation" class="site-nav" aria-label="주요 메뉴" data-site-nav>
+        <ul class="nav-list">
+          {% for item in navigation_items %}
+            {% assign item_url = item.url | default: '/' %}
+            {% assign normalized_item_url = item_url | replace: 'index.html', '' %}
+            {% assign is_current = false %}
+            {% if current_url == normalized_item_url %}
+              {% assign is_current = true %}
+            {% elsif normalized_item_url != '/' and current_url contains normalized_item_url %}
+              {% assign is_current = true %}
+            {% endif %}
+            <li class="nav-item">
+              {% if item_url contains '://' %}
+                {% assign navigation_href = item_url %}
+              {% else %}
+                {% assign navigation_href = item_url | relative_url %}
+              {% endif %}
+              <a class="nav-link{% if is_current %} is-current{% endif %}"
+                 href="{{ navigation_href }}"
+                 {% if is_current %}aria-current="page"{% endif %}
+                 {% if item.new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                {{ item.label | escape }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+
+      {% include theme-toggle.html %}
+      <button class="menu-toggle"
+              type="button"
+              aria-label="메뉴 열기"
+              aria-controls="site-navigation"
+              aria-expanded="false"
+              data-menu-toggle>
+        <span class="menu-toggle-line" aria-hidden="true"></span>
+        <span class="menu-toggle-line" aria-hidden="true"></span>
+        <span class="menu-toggle-line" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+  <button class="menu-overlay"
+          type="button"
+          aria-label="메뉴 닫기"
+          tabindex="-1"
+          hidden
+          data-menu-overlay></button>
+</header>

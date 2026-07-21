@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="개인 기술 블로그 파비콘">
+  <rect width="64" height="64" rx="14" fill="#1f4fae"/>
+  <path d="M18 14h20l8 8v28H18V14Z" fill="#fff"/>
+  <path d="M38 14v9h8M24 31h16M24 38h16M24 45h10" fill="none" stroke="#1f4fae" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

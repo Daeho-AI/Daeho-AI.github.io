@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title description">
+  <title id="title">프로필 이미지 자리 표시자</title>
+  <desc id="description">중립적인 사람 실루엣</desc>
+  <rect width="320" height="320" rx="32" fill="#e8eef7"/>
+  <circle cx="160" cy="118" r="54" fill="#8fa4bf"/>
+  <path d="M63 286c7-68 42-107 97-107s90 39 97 107" fill="#8fa4bf"/>
+  <circle cx="160" cy="160" r="150" fill="none" stroke="#c7d3e2" stroke-width="4"/>
+</svg>

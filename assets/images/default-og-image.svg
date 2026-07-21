@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">개인 기술 블로그 기본 소셜 이미지</title>
+  <desc id="description">차분한 파란색 선과 점으로 구성된 기본 소셜 미리보기 이미지</desc>
+  <rect width="1200" height="630" fill="#f8fafc"/>
+  <rect x="48" y="48" width="1104" height="534" rx="32" fill="#fff" stroke="#dce3ec" stroke-width="2"/>
+  <path d="M810 148h220M810 216h274M810 284h178M810 352h248M810 420h126" fill="none" stroke="#dce6f3" stroke-width="10" stroke-linecap="round"/>
+  <path d="M837 166l92 96 109-74 74 96-128 108-104-82-92 74" fill="none" stroke="#2457c5" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#2457c5">
+    <circle cx="837" cy="166" r="11"/>
+    <circle cx="929" cy="262" r="11"/>
+    <circle cx="1038" cy="188" r="11"/>
+    <circle cx="1112" cy="284" r="11"/>
+    <circle cx="984" cy="392" r="11"/>
+    <circle cx="880" cy="310" r="11"/>
+    <circle cx="788" cy="384" r="11"/>
+  </g>
+  <rect x="112" y="126" width="72" height="8" rx="4" fill="#2457c5"/>
+  <text x="112" y="250" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', Arial, sans-serif" font-size="68" font-weight="750" letter-spacing="-2">Personal Tech Blog</text>
+  <text x="112" y="322" fill="#526277" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', Arial, sans-serif" font-size="34" font-weight="600">읽고 쓰기 편한 기술 기록 공간</text>
+  <text x="112" y="432" fill="#526277" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', Arial, sans-serif" font-size="24">Markdown · YAML · GitHub Pages</text>
+</svg>

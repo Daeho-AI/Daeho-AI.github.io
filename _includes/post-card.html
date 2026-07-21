@@ -1,0 +1,46 @@
+{% assign entry = include.post | default: post %}
+{% assign entry_description = entry.description | default: entry.excerpt | strip_html | strip_newlines | normalize_whitespace | truncate: 180 %}
+<article class="post-card">
+  {% if entry.thumbnail and entry.thumbnail != '' %}
+    {% if entry.thumbnail contains '://' %}
+      {% assign post_thumbnail_src = entry.thumbnail %}
+    {% else %}
+      {% assign post_thumbnail_src = entry.thumbnail | relative_url %}
+    {% endif %}
+    <a class="post-card-thumbnail" href="{{ entry.url | relative_url }}" tabindex="-1" aria-hidden="true">
+      <img src="{{ post_thumbnail_src | escape }}"
+           alt=""
+           loading="lazy"
+           decoding="async">
+    </a>
+  {% endif %}
+  <div class="post-card-body">
+    <div class="entry-meta">
+      <time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: '%Y.%m.%d' }}</time>
+      {% if entry.categories and entry.categories.size > 0 %}
+        <span aria-hidden="true">·</span>
+        <span class="entry-categories">
+          {% for category in entry.categories %}
+            {{ category | escape }}{% unless forloop.last %}, {% endunless %}
+          {% endfor %}
+        </span>
+      {% endif %}
+    </div>
+    <h2 class="entry-title">
+      <a href="{{ entry.url | relative_url }}">{{ entry.title | escape }}</a>
+    </h2>
+    {% if entry_description != '' %}
+      <p class="entry-summary">{{ entry_description | escape }}</p>
+    {% endif %}
+    {% if entry.tags and entry.tags.size > 0 %}
+      <ul class="tag-list" aria-label="태그">
+        {% for tag in entry.tags %}
+          <li class="tag">{{ tag | escape }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <a class="entry-read-more" href="{{ entry.url | relative_url }}" aria-label="{{ entry.title | escape }} 자세히 읽기">
+      자세히 읽기 <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</article>

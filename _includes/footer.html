@@ -1,0 +1,53 @@
+{% assign profile = site.data.profile %}
+{% assign footer_name = profile.display_name | default: profile.name | default: site.title %}
+{% assign social_links = site.data.social %}
+{% assign github_url = profile.github | default: '' | strip %}
+{% assign linkedin_url = profile.linkedin | default: '' | strip %}
+{% capture footer_social_items %}
+  {% if github_url != '' %}
+    <li>
+      <a href="{{ github_url | escape }}" target="_blank" rel="noopener noreferrer">
+        {{ footer_name | escape }} on GitHub
+      </a>
+    </li>
+  {% endif %}
+  {% if linkedin_url != '' %}
+    <li>
+      <a href="{{ linkedin_url | escape }}" target="_blank" rel="noopener noreferrer">
+        {{ footer_name | escape }} on LinkedIn
+      </a>
+    </li>
+  {% endif %}
+  {% if social_links and social_links.size > 0 %}
+    {% for social in social_links %}
+      {% assign social_url = social.url | default: '' | strip %}
+      {% if social_url != '' %}
+        <li>
+          <a href="{{ social_url | escape }}"
+             {% if social.new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+            {{ social.label | default: social.name | escape }}
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+{% assign footer_social_items = footer_social_items | strip %}
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p class="footer-copyright">
+      <span aria-hidden="true">&copy;</span>
+      <span data-current-year>{{ site.time | date: '%Y' }}</span>
+      {{ footer_name | escape }}
+    </p>
+
+    <div class="footer-links">
+      <a href="{{ '/archive/' | relative_url }}">Archive</a>
+      {% if footer_social_items != '' %}
+        <ul class="social-links" aria-label="소셜 링크">
+          {{ footer_social_items }}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</footer>

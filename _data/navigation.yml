@@ -1,0 +1,24 @@
+- label: "Home"
+  url: "/"
+  new_tab: false
+  order: 1
+
+- label: "Blog"
+  url: "/blog/"
+  new_tab: false
+  order: 2
+
+- label: "Projects"
+  url: "/projects/"
+  new_tab: false
+  order: 3
+
+- label: "About"
+  url: "/about/"
+  new_tab: false
+  order: 4
+
+- label: "Contact"
+  url: "/contact/"
+  new_tab: false
+  order: 5

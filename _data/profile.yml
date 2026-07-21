@@ -1,0 +1,13 @@
+# 확인되지 않은 개인정보는 빈 문자열로 유지했습니다.
+# 값을 입력할 때 따옴표 안의 내용만 수정하면 됩니다.
+name: "Daeho-AI"
+display_name: "Daeho-AI"
+headline: ""
+short_bio: ""
+bio: ""
+location: ""
+email: ""
+github: "https://github.com/Daeho-AI"
+linkedin: ""
+profile_image: ""
+availability: ""

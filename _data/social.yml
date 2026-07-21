@@ -1,0 +1,9 @@
+# GitHub와 LinkedIn은 _data/profile.yml에서 한 번만 관리합니다.
+# 그 밖의 공개 소셜 링크가 필요하면 아래 형식으로 추가하세요.
+# 링크를 추가할 때는 아래 []를 삭제한 뒤 주석 예시를 사용하세요.
+[]
+
+# - name: "Community"
+#   label: "커뮤니티 프로필"
+#   url: ""
+#   new_tab: true

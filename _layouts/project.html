@@ -1,0 +1,72 @@
+---
+layout: default
+---
+<div class="container project-container">
+  <article class="project-detail" aria-labelledby="project-title">
+    <header class="project-header">
+      <a class="back-link" href="{{ '/projects/' | relative_url }}"><span aria-hidden="true">←</span> Projects</a>
+      <h1 id="project-title">{{ page.title | escape }}</h1>
+      {% if page.summary and page.summary != '' %}
+        <p class="project-summary">{{ page.summary | escape }}</p>
+      {% endif %}
+      <dl class="project-facts">
+        {% if page.period and page.period != '' %}
+          <div><dt>기간</dt><dd>{{ page.period | escape }}</dd></div>
+        {% endif %}
+        {% if page.status and page.status != '' %}
+          <div><dt>상태</dt><dd><span class="project-status">{{ page.status | escape }}</span></dd></div>
+        {% endif %}
+        {% if page.role and page.role != '' %}
+          <div><dt>역할</dt><dd>{{ page.role | escape }}</dd></div>
+        {% endif %}
+      </dl>
+      {% if page.technologies and page.technologies.size > 0 %}
+        <ul class="tag-list" aria-label="사용 기술">
+          {% for technology in page.technologies %}
+            <li class="tag">{{ technology | escape }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      <div class="button-row project-links">
+        {% if page.repository_url and page.repository_url != '' %}
+          {% if page.repository_url contains '://' %}
+            {% assign project_repository_href = page.repository_url %}
+          {% else %}
+            {% assign project_repository_href = page.repository_url | relative_url %}
+          {% endif %}
+          <a class="button button-primary" href="{{ project_repository_href | escape }}"{% if page.repository_url contains '://' %} target="_blank" rel="noopener noreferrer"{% endif %}>저장소 보기</a>
+        {% endif %}
+        {% if page.demo_url and page.demo_url != '' %}
+          {% if page.demo_url contains '://' %}
+            {% assign project_demo_href = page.demo_url %}
+          {% else %}
+            {% assign project_demo_href = page.demo_url | relative_url %}
+          {% endif %}
+          <a class="button button-secondary" href="{{ project_demo_href | escape }}"{% if page.demo_url contains '://' %} target="_blank" rel="noopener noreferrer"{% endif %}>데모 보기</a>
+        {% endif %}
+      </div>
+    </header>
+
+    {% if page.thumbnail and page.thumbnail != '' %}
+      {% if page.thumbnail contains '://' %}
+        {% assign project_image_src = page.thumbnail %}
+      {% else %}
+        {% assign project_image_src = page.thumbnail | relative_url %}
+      {% endif %}
+      <figure class="project-hero-image">
+        <img src="{{ project_image_src | escape }}"
+             alt="{{ page.thumbnail_alt | default: page.title | escape }}"
+             decoding="async">
+      </figure>
+    {% endif %}
+
+    {% assign project_body = content | strip %}
+    {% if project_body != '' %}
+      <div class="project-content prose">{{ content }}</div>
+    {% endif %}
+
+    <footer class="project-footer">
+      <a class="back-to-list" href="{{ '/projects/' | relative_url }}">프로젝트 목록으로 돌아가기</a>
+    </footer>
+  </article>
+</div>
