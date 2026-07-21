@@ -1,5 +1,5 @@
-enabled: false
-api_base_url: ""
+enabled: true
+api_base_url: "https://daeho-owner-editor-api.daeho9805.workers.dev"
 owner_login: "Daeho-AI"
 repository: "Daeho-AI/Daeho-AI.github.io"
 branch: "main"
