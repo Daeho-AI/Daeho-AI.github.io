@@ -1,0 +1,13 @@
+/* Rouge syntax tokens. The palette is tuned for the shared dark code surface. */
+.highlight .c, .highlight .cm, .highlight .c1, .highlight .cs { color: #8292a7; font-style: italic; }
+.highlight .k, .highlight .kc, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kt { color: #c792ea; }
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .se, .highlight .sh, .highlight .si, .highlight .sr, .highlight .ss { color: #c3e88d; }
+.highlight .na, .highlight .nb, .highlight .nc, .highlight .nd, .highlight .ne, .highlight .nf, .highlight .nx { color: #82aaff; }
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .mo { color: #f78c6c; }
+.highlight .o, .highlight .ow { color: #89ddff; }
+.highlight .p { color: #dce8f7; }
+.highlight .nt { color: #f07178; }
+.highlight .nv, .highlight .vc, .highlight .vg, .highlight .vi { color: #ffcb6b; }
+.highlight .gd { color: #ff8a80; background: rgb(180 35 24 / 14%); }
+.highlight .gi { color: #7fd5ae; background: rgb(20 122 80 / 14%); }
+.highlight .gh, .highlight .gu { color: #dce8f7; font-weight: 700; }

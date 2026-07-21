@@ -1,0 +1,2 @@
+{% assign bookmark_post = include.post | default: page %}
+<button class="bookmark-button{% if include.compact %} bookmark-button-compact{% endif %}" type="button" data-bookmark-button data-bookmark-url="{{ bookmark_post.url | relative_url | escape }}" data-bookmark-title="{{ bookmark_post.title | escape }}" aria-label="{{ bookmark_post.title | escape }} 북마크에 저장" aria-pressed="false">{% include icon.html name='bookmark' %}<span{% if include.compact %} class="visually-hidden"{% endif %} data-bookmark-label>북마크</span></button>

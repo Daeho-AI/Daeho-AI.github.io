@@ -1,0 +1,37 @@
+{% assign profile = site.data.profile %}
+{% assign settings = site.data.site %}
+{% assign seo_name = profile.display_name | default: profile.name | default: settings.title | default: site.title %}
+{% assign seo_description = page.description | default: page.summary | default: page.excerpt | default: settings.description | strip_html | strip_newlines | normalize_whitespace | truncate: 160 %}
+{% assign seo_image = page.og_image | default: page.cover | default: page.thumbnail | default: site.og_image | default: '/assets/images/default-og-image.png' %}
+{% unless seo_image contains '://' %}{% assign seo_image = seo_image | absolute_url %}{% endunless %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "{% if page.layout == 'post' %}BlogPosting{% elsif page.layout == 'project' %}CreativeWork{% elsif page.url == '/blog/' %}Blog{% else %}WebPage{% endif %}",
+  "name": {{ page.title | default: settings.title | default: site.title | jsonify }},
+  "headline": {{ page.title | default: settings.title | default: site.title | jsonify }},
+  "description": {{ seo_description | jsonify }},
+  "url": {{ page.url | absolute_url | jsonify }}{% if page.layout == 'post' %},
+  "datePublished": {{ page.date | date_to_xmlschema | jsonify }},
+  "dateModified": {{ page.last_modified_at | default: page.date | date_to_xmlschema | jsonify }},
+  "author": {"@type": "Person", "name": {{ seo_name | jsonify }}, "url": {{ profile.github | default: site.url | jsonify }}},
+  "mainEntityOfPage": {"@type": "WebPage", "@id": {{ page.url | absolute_url | jsonify }}},
+  "image": {{ seo_image | jsonify }}{% endif %}{% if page.layout == 'project' %},
+  "creator": {"@type": "Person", "name": {{ seo_name | jsonify }}},
+  "image": {{ seo_image | jsonify }}{% endif %}
+}
+</script>
+{% if page.url == '/' %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": {{ seo_name | jsonify }},
+  "url": {{ site.url | jsonify }}{% if profile.github and profile.github != '' %},
+  "sameAs": [{{ profile.github | jsonify }}{% if profile.linkedin and profile.linkedin != '' %}, {{ profile.linkedin | jsonify }}{% endif %}]{% endif %}
+}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":{{ settings.title | default: site.title | jsonify }},"url":{{ site.url | jsonify }},"description":{{ settings.description | default: site.description | jsonify }}}
+</script>
+{% endif %}

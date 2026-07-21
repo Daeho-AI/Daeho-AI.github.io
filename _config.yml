@@ -1,13 +1,24 @@
-title: "Personal Blog"
-description: "GitHub Pages 기반 개인 기술 블로그"
+title: "Daeho-AI"
+description: "기술 기록과 프로젝트를 정리하는 개인 기술 블로그"
 url: "https://daeho-ai.github.io"
 baseurl: ""
+repository: "Daeho-AI/Daeho-AI.github.io"
+og_image: "/assets/images/default-og-image.png"
+og_image_alt: "Daeho-AI 기술 블로그 공유 이미지"
 lang: "ko"
 timezone: "Asia/Seoul"
 encoding: "utf-8"
 
 markdown: kramdown
+highlighter: rouge
 permalink: /blog/:year/:month/:day/:title/
+excerpt_separator: "<!--more-->"
+future: false
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  hard_wrap: false
 
 collections:
   projects:
@@ -20,16 +31,34 @@ defaults:
       type: posts
     values:
       layout: post
+      author: Daeho-AI
+      toc: true
+      comments: true
+      math: false
+      mermaid: false
+      featured: false
+      pinned: false
+      noindex: false
+      search_exclude: false
   - scope:
       path: ""
       type: projects
     values:
       layout: project
+      featured: false
+      published: true
+      noindex: false
+  - scope:
+      path: ""
+    values:
+      layout: page
 
-# GitHub Pages 기본 Jekyll 기능만 사용합니다. plugins 항목을 추가하지 마세요.
+# GitHub Pages가 기본 제공하는 Jekyll 기능만 사용합니다. plugins 항목을 추가하지 마세요.
 exclude:
   - README.md
+  - docs
   - templates
+  - scripts
   - tools
   - editor-api
   - package.json
@@ -39,6 +68,8 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - vendor
+  - test
+  - tests
   - .bundle
   - .jekyll-cache
   - .sass-cache

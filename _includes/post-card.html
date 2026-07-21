@@ -1,46 +1,14 @@
 {% assign entry = include.post | default: post %}
 {% assign entry_description = entry.description | default: entry.excerpt | strip_html | strip_newlines | normalize_whitespace | truncate: 180 %}
-<article class="post-card">
-  {% if entry.thumbnail and entry.thumbnail != '' %}
-    {% if entry.thumbnail contains '://' %}
-      {% assign post_thumbnail_src = entry.thumbnail %}
-    {% else %}
-      {% assign post_thumbnail_src = entry.thumbnail | relative_url %}
-    {% endif %}
-    <a class="post-card-thumbnail" href="{{ entry.url | relative_url }}" tabindex="-1" aria-hidden="true">
-      <img src="{{ post_thumbnail_src | escape }}"
-           alt=""
-           loading="lazy"
-           decoding="async">
-    </a>
-  {% endif %}
+{% assign entry_cover = entry.cover | default: entry.thumbnail | default: '' %}
+{% assign reading_minutes = entry.content | strip_html | size | divided_by: 500 | plus: 1 %}
+<article class="post-card{% if include.featured %} post-card-featured{% endif %}" data-post-card data-title="{{ entry.title | escape }}" data-description="{{ entry_description | escape }}" data-categories="{{ entry.categories | join: '|' | escape }}" data-tags="{{ entry.tags | join: '|' | escape }}" data-series="{{ entry.series | default: '' | escape }}" data-date="{{ entry.date | date: '%s' }}">
+  {% if entry_cover != '' %}<a class="post-card-cover" href="{{ entry.url | relative_url }}" tabindex="-1" aria-hidden="true"><img src="{% if entry_cover contains '://' %}{{ entry_cover | escape }}{% else %}{{ entry_cover | relative_url }}{% endif %}" alt="" loading="lazy" decoding="async"></a>{% endif %}
   <div class="post-card-body">
-    <div class="entry-meta">
-      <time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: '%Y.%m.%d' }}</time>
-      {% if entry.categories and entry.categories.size > 0 %}
-        <span aria-hidden="true">·</span>
-        <span class="entry-categories">
-          {% for category in entry.categories %}
-            {{ category | escape }}{% unless forloop.last %}, {% endunless %}
-          {% endfor %}
-        </span>
-      {% endif %}
-    </div>
-    <h2 class="entry-title">
-      <a href="{{ entry.url | relative_url }}">{{ entry.title | escape }}</a>
-    </h2>
-    {% if entry_description != '' %}
-      <p class="entry-summary">{{ entry_description | escape }}</p>
-    {% endif %}
-    {% if entry.tags and entry.tags.size > 0 %}
-      <ul class="tag-list" aria-label="태그">
-        {% for tag in entry.tags %}
-          <li class="tag">{{ tag | escape }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-    <a class="entry-read-more" href="{{ entry.url | relative_url }}" aria-label="{{ entry.title | escape }} 자세히 읽기">
-      자세히 읽기 <span aria-hidden="true">→</span>
-    </a>
+    <div class="entry-meta">{% if entry.categories.size > 0 %}<a href="{{ '/blog/' | relative_url }}?category={{ entry.categories.first | url_encode }}">{{ entry.categories.first | escape }}</a><span aria-hidden="true">/</span>{% endif %}<time datetime="{{ entry.date | date_to_xmlschema }}">{{ entry.date | date: site.data.site.date_format }}</time><span aria-hidden="true">·</span><span>약 {{ reading_minutes }}분</span></div>
+    <h3 class="entry-title"><a href="{{ entry.url | relative_url }}">{{ entry.title | escape }}</a></h3>
+    {% if entry.subtitle and entry.subtitle != '' %}<p class="entry-subtitle">{{ entry.subtitle | escape }}</p>{% endif %}
+    {% if entry_description != '' %}<p class="entry-summary">{{ entry_description | escape }}</p>{% endif %}
+    <div class="entry-footer"><div>{% if entry.tags.size > 0 %}<ul class="tag-list" aria-label="태그">{% for tag in entry.tags limit: 3 %}<li><a class="tag" href="{{ '/blog/' | relative_url }}?tag={{ tag | url_encode }}">{{ tag | escape }}</a></li>{% endfor %}</ul>{% endif %}</div>{% if site.data.site.features.bookmarks %}{% include bookmark-button.html post=entry %}{% endif %}</div>
   </div>
 </article>

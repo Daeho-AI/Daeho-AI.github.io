@@ -1,0 +1,21 @@
+{% assign giscus = site.data.integrations.giscus %}
+{% if site.data.site.features.comments and page.comments and giscus.enabled and giscus.repo != '' and giscus.repo_id != '' and giscus.category != '' and giscus.category_id != '' %}
+<section
+  class="comments"
+  aria-labelledby="comments-title"
+  data-comments
+  data-giscus-repo="{{ giscus.repo | escape }}"
+  data-giscus-repo-id="{{ giscus.repo_id | escape }}"
+  data-giscus-category="{{ giscus.category | escape }}"
+  data-giscus-category-id="{{ giscus.category_id | escape }}"
+  data-giscus-mapping="{{ giscus.mapping | default: 'pathname' | escape }}"
+  data-giscus-strict="{{ giscus.strict | default: '1' | escape }}"
+  data-giscus-reactions-enabled="{{ giscus.reactions_enabled | default: '1' | escape }}"
+  data-giscus-input-position="{{ giscus.input_position | default: 'top' | escape }}"
+  data-giscus-lang="{{ giscus.lang | default: 'ko' | escape }}"
+  hidden
+>
+  <h2 id="comments-title">댓글</h2>
+  <div data-giscus-mount></div>
+</section>
+{% endif %}

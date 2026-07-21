@@ -1,73 +1,41 @@
 ---
 layout: default
 ---
-{% assign profile = site.data.profile %}
-{% assign author_name = profile.display_name | default: profile.name %}
-<div class="container post-container">
-  <article class="post" aria-labelledby="post-title">
+{% assign profile = site.data.profile %}{% assign author_name = profile.display_name | default: profile.name | default: site.title %}
+{% assign reading_minutes = page.content | strip_html | size | divided_by: 500 | plus: 1 %}
+{% assign post_cover = page.cover | default: page.thumbnail | default: '' %}
+{% assign post_cover_alt = page.cover_alt | default: page.thumbnail_alt | default: page.title %}
+{% if site.data.site.features.reading_progress %}<progress class="reading-progress" data-reading-progress max="100" value="0" aria-label="읽기 진행률"></progress>{% endif %}
+<article class="post-article" data-post-article data-recent-post data-math="{{ page.math | default: false }}" data-mermaid="{{ page.mermaid | default: false }}" data-url="{{ page.url | relative_url | escape }}" data-title="{{ page.title | escape }}" data-description="{{ page.description | default: page.excerpt | strip_html | strip_newlines | normalize_whitespace | truncate: 160 | escape }}" data-date="{{ page.date | date_to_xmlschema }}">
+  <div class="container post-header-wrap">
+    {% include breadcrumbs.html %}
     <header class="post-header">
-      <a class="back-link" href="{{ '/blog/' | relative_url }}"><span aria-hidden="true">←</span> Blog</a>
+      {% if page.categories.size > 0 %}<div class="post-kicker">{% for category in page.categories %}<a href="{{ '/blog/' | relative_url }}?category={{ category | url_encode }}">{{ category | escape }}</a>{% unless forloop.last %}<span>/</span>{% endunless %}{% endfor %}</div>{% endif %}
       <h1 id="post-title">{{ page.title | escape }}</h1>
-      <div class="post-meta">
-        <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y.%m.%d' }}</time>
-        {% if author_name and author_name != '' %}
-          <span aria-hidden="true">·</span>
-          <span>{{ author_name | escape }}</span>
-        {% endif %}
-        {% if page.categories and page.categories.size > 0 %}
-          <span aria-hidden="true">·</span>
-          <span>
-            {% for category in page.categories %}
-              {{ category | escape }}{% unless forloop.last %}, {% endunless %}
-            {% endfor %}
-          </span>
-        {% endif %}
-      </div>
-      {% if page.description and page.description != '' %}
-        <p class="post-description">{{ page.description | escape }}</p>
-      {% endif %}
-      {% if page.tags and page.tags.size > 0 %}
-        <ul class="tag-list" aria-label="태그">
-          {% for tag in page.tags %}
-            <li class="tag">{{ tag | escape }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+      {% if page.subtitle and page.subtitle != '' %}<p class="post-subtitle">{{ page.subtitle | escape }}</p>{% endif %}
+      {% if page.description and page.description != '' %}<p class="post-description">{{ page.description | escape }}</p>{% endif %}
+      <div class="post-byline"><span>{{ author_name | escape }}</span><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: site.data.site.date_format }}</time>{% if page.last_modified_at and page.last_modified_at != page.date %}<span>수정 <time datetime="{{ page.last_modified_at | date_to_xmlschema }}">{{ page.last_modified_at | date: site.data.site.date_format }}</time></span>{% endif %}<span>예상 {{ reading_minutes }}분</span></div>
+      <div class="post-header-bottom">{% if page.tags.size > 0 %}<ul class="tag-list" aria-label="태그">{% for tag in page.tags %}<li><a class="tag" href="{{ '/blog/' | relative_url }}?tag={{ tag | url_encode }}">{{ tag | escape }}</a></li>{% endfor %}</ul>{% endif %}{% include share-buttons.html %}</div>
     </header>
+  </div>
 
-    {% if page.thumbnail and page.thumbnail != '' %}
-      {% if page.thumbnail contains '://' %}
-        {% assign post_image_src = page.thumbnail %}
-      {% else %}
-        {% assign post_image_src = page.thumbnail | relative_url %}
-      {% endif %}
-      <figure class="post-hero-image">
-        <img src="{{ post_image_src | escape }}"
-             alt="{{ page.thumbnail_alt | default: page.title | escape }}"
-             decoding="async">
-      </figure>
-    {% endif %}
+  {% if post_cover != '' %}<figure class="post-cover container"><img src="{% if post_cover contains '://' %}{{ post_cover | escape }}{% else %}{{ post_cover | relative_url }}{% endif %}" alt="{{ post_cover_alt | escape }}" width="1200" height="675" fetchpriority="high" decoding="async">{% if page.cover_caption %}<figcaption>{{ page.cover_caption | escape }}</figcaption>{% endif %}</figure>{% endif %}
 
-    <div class="post-content prose">
-      {{ content }}
-    </div>
-
-    <footer class="post-footer">
+  <div class="container post-reading-layout">
+    <div class="post-reading-main">
+      <div class="post-content prose" data-post-content>{{ content }}</div>
+      {% include series-navigation.html %}
+      {% if site.data.site.features.author_card %}{% include author-card.html %}{% endif %}
+      {% include related-posts.html %}
       <nav class="post-navigation" aria-label="게시글 이동">
-        {% if page.previous %}
-          <a class="post-navigation-link previous-post" href="{{ page.previous.url | relative_url }}">
-            <span class="post-navigation-label">이전 글</span>
-            <span>{{ page.previous.title | escape }}</span>
-          </a>
-        {% endif %}
-        {% if page.next %}
-          <a class="post-navigation-link next-post" href="{{ page.next.url | relative_url }}">
-            <span class="post-navigation-label">다음 글</span>
-            <span>{{ page.next.title | escape }}</span>
-          </a>
-        {% endif %}
+        {% if page.previous %}<a class="previous-post" href="{{ page.previous.url | relative_url }}"><span>이전 글</span><strong>{{ page.previous.title | escape }}</strong></a>{% endif %}
+        {% if page.next %}<a class="next-post" href="{{ page.next.url | relative_url }}"><span>다음 글</span><strong>{{ page.next.title | escape }}</strong></a>{% endif %}
+        <a class="all-posts" href="{{ '/blog/' | relative_url }}">전체 글 보기</a>
       </nav>
-      <a class="back-to-list" href="{{ '/blog/' | relative_url }}">블로그 목록으로 돌아가기</a>
-    </footer>
-  </article>
-</div>
+      {% if site.data.site.features.recently_viewed %}<section class="recent-posts-inline" data-recently-viewed hidden><div class="section-heading"><div><h2>최근 본 글</h2></div><button class="text-button" type="button" data-clear-recent>기록 지우기</button></div><ol class="compact-post-list" data-recent-list></ol></section>{% endif %}
+      {% include comments.html %}
+      {% include edit-links.html %}
+    </div>
+    {% include table-of-contents.html %}
+  </div>
+</article>

@@ -1,0 +1,6 @@
+<button class="icon-button theme-control" type="button" data-theme-control data-theme-mode="{{ site.data.site.default_theme | default: 'system' }}" aria-label="테마: 시스템 설정" title="테마: 시스템 설정">
+  <span data-theme-icon-system>{% include icon.html name='system' %}</span>
+  <span data-theme-icon-light hidden>{% include icon.html name='sun' %}</span>
+  <span data-theme-icon-dark hidden>{% include icon.html name='moon' %}</span>
+  <span class="visually-hidden" data-theme-label>테마: 시스템 설정</span>
+</button>

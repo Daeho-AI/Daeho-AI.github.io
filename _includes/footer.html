@@ -1,53 +1,29 @@
 {% assign profile = site.data.profile %}
-{% assign footer_name = profile.display_name | default: profile.name | default: site.title %}
-{% assign social_links = site.data.social %}
-{% assign github_url = profile.github | default: '' | strip %}
-{% assign linkedin_url = profile.linkedin | default: '' | strip %}
-{% capture footer_social_items %}
-  {% if github_url != '' %}
-    <li>
-      <a href="{{ github_url | escape }}" target="_blank" rel="noopener noreferrer">
-        {{ footer_name | escape }} on GitHub
-      </a>
-    </li>
-  {% endif %}
-  {% if linkedin_url != '' %}
-    <li>
-      <a href="{{ linkedin_url | escape }}" target="_blank" rel="noopener noreferrer">
-        {{ footer_name | escape }} on LinkedIn
-      </a>
-    </li>
-  {% endif %}
-  {% if social_links and social_links.size > 0 %}
-    {% for social in social_links %}
-      {% assign social_url = social.url | default: '' | strip %}
-      {% if social_url != '' %}
-        <li>
-          <a href="{{ social_url | escape }}"
-             {% if social.new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
-            {{ social.label | default: social.name | escape }}
-          </a>
-        </li>
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-{% endcapture %}
-{% assign footer_social_items = footer_social_items | strip %}
+{% assign settings = site.data.site %}
+{% assign footer_name = profile.display_name | default: profile.name | default: settings.title | default: site.title %}
+{% assign newsletter_url = site.data.integrations.newsletter_url | default: '' | strip %}
+{% assign newsletter_prefix = newsletter_url | slice: 0, 8 %}
 <footer class="site-footer">
-  <div class="container footer-inner">
-    <p class="footer-copyright">
-      <span aria-hidden="true">&copy;</span>
-      <span data-current-year>{{ site.time | date: '%Y' }}</span>
-      {{ footer_name | escape }}
-    </p>
-
-    <div class="footer-links">
-      <a href="{{ '/archive/' | relative_url }}">Archive</a>
-      {% if footer_social_items != '' %}
-        <ul class="social-links" aria-label="소셜 링크">
-          {{ footer_social_items }}
-        </ul>
-      {% endif %}
+  <div class="container footer-grid">
+    <div class="footer-about">
+      <a class="footer-brand" href="{{ '/' | relative_url }}">{{ footer_name | escape }}</a>
+      <p>{{ settings.description | default: site.description | escape }}</p>
     </div>
+    <nav class="footer-nav" aria-label="footer 메뉴">
+      <a href="{{ '/blog/' | relative_url }}">Blog</a>
+      <a href="{{ '/projects/' | relative_url }}">Projects</a>
+      <a href="{{ '/archive/' | relative_url }}">Archive</a>
+      <a href="{{ '/privacy/' | relative_url }}">Privacy</a>
+    </nav>
+    <div class="footer-external">
+      {% if profile.github and profile.github != '' %}<a href="{{ profile.github | escape }}" target="_blank" rel="noopener noreferrer">GitHub {% include icon.html name='external' %}</a>{% endif %}
+      {% for social in site.data.social %}{% if social.url and social.url != '' %}<a href="{{ social.url | escape }}"{% if social.new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ social.label | default: social.name | escape }}{% if social.new_tab %} {% include icon.html name='external' %}{% endif %}</a>{% endif %}{% endfor %}
+      {% if newsletter_prefix == 'https://' %}<a href="{{ newsletter_url | escape }}" target="_blank" rel="noopener noreferrer">Newsletter {% include icon.html name='external' %}</a>{% endif %}
+      <a href="{{ '/feed.xml' | relative_url }}">{% include icon.html name='rss' %} RSS</a>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p>© <span data-current-year>{{ site.time | date: '%Y' }}</span> {{ footer_name | escape }}</p>
+    <p>Jekyll과 GitHub Pages로 운영합니다.</p>
   </div>
 </footer>

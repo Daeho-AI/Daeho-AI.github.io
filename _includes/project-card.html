@@ -1,57 +1,7 @@
 {% assign project = include.project %}
-<article class="project-card">
-  {% if project.thumbnail and project.thumbnail != '' %}
-    {% if project.thumbnail contains '://' %}
-      {% assign project_thumbnail_src = project.thumbnail %}
-    {% else %}
-      {% assign project_thumbnail_src = project.thumbnail | relative_url %}
-    {% endif %}
-    <a class="project-card-thumbnail" href="{{ project.url | relative_url }}" tabindex="-1" aria-hidden="true">
-      <img src="{{ project_thumbnail_src | escape }}"
-           alt=""
-           loading="lazy"
-           decoding="async">
-    </a>
-  {% endif %}
-  <div class="project-card-body">
-    <div class="project-meta">
-      {% if project.status and project.status != '' %}
-        <span class="project-status">상태: {{ project.status | escape }}</span>
-      {% endif %}
-      {% if project.period and project.period != '' %}
-        <span>기간: {{ project.period | escape }}</span>
-      {% endif %}
-    </div>
-    <h2 class="entry-title">
-      <a href="{{ project.url | relative_url }}">{{ project.title | escape }}</a>
-    </h2>
-    {% if project.summary and project.summary != '' %}
-      <p class="entry-summary">{{ project.summary | escape }}</p>
-    {% endif %}
-    {% if project.role and project.role != '' %}
-      <p class="project-role"><strong>역할</strong> {{ project.role | escape }}</p>
-    {% endif %}
-    {% if project.technologies and project.technologies.size > 0 %}
-      <ul class="tag-list" aria-label="사용 기술">
-        {% for technology in project.technologies %}
-          <li class="tag">{{ technology | escape }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-    <div class="entry-actions">
-      <a class="entry-read-more" href="{{ project.url | relative_url }}" aria-label="{{ project.title | escape }} 상세 페이지 보기">
-        상세 보기 <span aria-hidden="true">→</span>
-      </a>
-      {% if project.repository_url and project.repository_url != '' %}
-        {% if project.repository_url contains '://' %}
-          {% assign repository_href = project.repository_url %}
-        {% else %}
-          {% assign repository_href = project.repository_url | relative_url %}
-        {% endif %}
-        <a href="{{ repository_href | escape }}"{% if project.repository_url contains '://' %} target="_blank" rel="noopener noreferrer"{% endif %}>
-          저장소
-        </a>
-      {% endif %}
-    </div>
-  </div>
+{% assign project_cover = project.cover | default: project.thumbnail | default: '' %}
+<article class="project-card" data-project-card data-status="{{ project.status | default: '' | escape }}" data-technologies="{{ project.technologies | join: '|' | escape }}" data-order="{{ project.order | default: 9999 }}" data-period="{{ project.period | default: '' | escape }}" data-featured="{{ project.featured | default: false }}">
+  <div class="project-card-index" aria-hidden="true">{{ project.order | default: forloop.index | prepend: '0' | slice: -2, 2 }}</div>
+  <div class="project-card-body"><div class="project-meta">{% if project.status and project.status != '' %}<span class="status-badge">{{ project.status | escape }}</span>{% endif %}{% if project.period and project.period != '' %}<span>{{ project.period | escape }}</span>{% endif %}</div><h3><a href="{{ project.url | relative_url }}">{{ project.title | escape }}</a></h3>{% if project.summary and project.summary != '' %}<p>{{ project.summary | escape }}</p>{% endif %}{% if project.role and project.role != '' %}<dl><dt>역할</dt><dd>{{ project.role | escape }}</dd></dl>{% endif %}{% if project.technologies.size > 0 %}<ul class="tag-list" aria-label="사용 기술">{% for technology in project.technologies limit: 5 %}<li class="tag">{{ technology | escape }}</li>{% endfor %}</ul>{% endif %}<div class="entry-actions"><a class="text-link" href="{{ project.url | relative_url }}">상세 보기 {% include icon.html name='arrow' %}</a>{% if project.repository_url and project.repository_url != '' %}<a href="{{ project.repository_url | escape }}" target="_blank" rel="noopener noreferrer">저장소 {% include icon.html name='external' %}</a>{% endif %}{% if project.demo_url and project.demo_url != '' %}<a href="{{ project.demo_url | escape }}" target="_blank" rel="noopener noreferrer">데모 {% include icon.html name='external' %}</a>{% endif %}</div></div>
+  {% if project_cover != '' %}<a class="project-card-cover" href="{{ project.url | relative_url }}" tabindex="-1" aria-hidden="true"><img src="{% if project_cover contains '://' %}{{ project_cover | escape }}{% else %}{{ project_cover | relative_url }}{% endif %}" alt="" loading="lazy" decoding="async"></a>{% endif %}
 </article>

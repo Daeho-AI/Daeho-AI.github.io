@@ -1,0 +1,4 @@
+<header class="section-heading">
+  <div><h2 id="{{ include.id }}">{{ include.title | escape }}</h2>{% if include.description and include.description != '' %}<p>{{ include.description | escape }}</p>{% endif %}</div>
+  {% if include.url %}<a href="{{ include.url | relative_url }}">{{ include.link_label | default: '더 보기' | escape }} {% include icon.html name='arrow' %}</a>{% endif %}
+</header>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+  <title id="title">Daeho-AI 기본 대표 이미지</title>
+  <desc id="description">짙은 남색 바탕에 격자와 파란 포인트가 있는 추상 기술 블로그 이미지</desc>
+  <rect width="1200" height="675" fill="#07111f"/>
+  <g stroke="#16314f" stroke-width="1" opacity=".72">
+    <path d="M0 96h1200M0 192h1200M0 288h1200M0 384h1200M0 480h1200M0 576h1200"/>
+    <path d="M120 0v675M240 0v675M360 0v675M480 0v675M600 0v675M720 0v675M840 0v675M960 0v675M1080 0v675"/>
+  </g>
+  <path d="M84 509 302 291l153 153 221-221 135 135 222-222" fill="none" stroke="#4f8cff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="1033" cy="136" r="18" fill="#7dd3fc"/>
+  <text x="84" y="122" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="54" font-weight="700">Daeho-AI</text>
+  <text x="86" y="168" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="24">Technical notes &amp; projects</text>
+</svg>

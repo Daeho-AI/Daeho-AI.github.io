@@ -1,0 +1,8 @@
+{% assign analytics = site.data.integrations.analytics %}
+{% assign analytics_ready = false %}
+{% if site.data.site.features.analytics and analytics.enabled %}
+  {% if analytics.provider == 'google' and analytics.google_measurement_id != '' %}{% assign analytics_ready = true %}{% endif %}
+  {% if analytics.provider == 'umami' and analytics.umami_script_url contains 'https://' and analytics.umami_website_id != '' %}{% assign analytics_ready = true %}{% endif %}
+  {% if analytics.provider == 'plausible' and analytics.plausible_script_url contains 'https://' and analytics.plausible_domain != '' %}{% assign analytics_ready = true %}{% endif %}
+{% endif %}
+{% if analytics_ready %}<aside class="consent-banner" data-analytics-consent data-provider="{{ analytics.provider | escape }}" data-google-id="{{ analytics.google_measurement_id | escape }}" data-umami-url="{{ analytics.umami_script_url | escape }}" data-umami-id="{{ analytics.umami_website_id | escape }}" data-plausible-domain="{{ analytics.plausible_domain | escape }}" data-plausible-url="{{ analytics.plausible_script_url | escape }}" hidden><p>방문 통계를 위해 선택적 분석 도구를 사용할 수 있습니다. 동의하지 않아도 사이트 이용에는 영향이 없습니다.</p><div class="button-row"><button class="button button-primary" type="button" data-consent-accept>동의</button><button class="button button-secondary" type="button" data-consent-reject>거부</button><a href="{{ '/privacy/' | relative_url }}">자세히 보기</a></div></aside><script src="{{ '/assets/js/analytics.js' | relative_url }}" defer></script>{% endif %}

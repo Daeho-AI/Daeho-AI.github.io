@@ -1,0 +1,51 @@
+# 공지 배너. enabled가 false이거나 text가 비면 HTML도 출력하지 않습니다.
+announcement:
+  enabled: false
+  text: ""
+  url: ""
+  label: "공지"
+
+# order 숫자가 작은 섹션부터 홈에 표시합니다. enabled: false면 완전히 숨깁니다.
+sections:
+  - id: intro
+    enabled: true
+    title: "소개"
+    description: ""
+    limit: 1
+    order: 10
+  - id: featured_posts
+    enabled: true
+    title: "추천 글"
+    description: "집중해서 읽을 만한 기술 기록"
+    limit: 3
+    order: 20
+  - id: recent_posts
+    enabled: true
+    title: "최근 게시글"
+    description: "새로 작성하거나 업데이트한 기록"
+    limit: 6
+    order: 30
+  - id: categories
+    enabled: true
+    title: "주제별 탐색"
+    description: "카테고리에서 관련 글을 이어서 살펴보세요."
+    limit: 8
+    order: 40
+  - id: projects
+    enabled: true
+    title: "주요 프로젝트"
+    description: "공개된 작업과 프로젝트"
+    limit: 4
+    order: 50
+  - id: focus
+    enabled: true
+    title: "관심 분야와 기술"
+    description: "프로필과 기술 목록에 등록된 주제"
+    limit: 12
+    order: 60
+  - id: contact
+    enabled: true
+    title: "계속 살펴보기"
+    description: "RSS로 새 글을 구독하거나 공개된 채널을 확인할 수 있습니다."
+    limit: 1
+    order: 70

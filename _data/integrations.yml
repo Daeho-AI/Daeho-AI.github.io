@@ -1,0 +1,26 @@
+# 모든 외부 연동은 기본 비활성입니다. enabled와 필수 값이 모두 유효할 때만 UI/스크립트를 로드합니다.
+giscus:
+  enabled: false
+  repo: ""
+  repo_id: ""
+  category: ""
+  category_id: ""
+  mapping: "pathname"
+  strict: "1"
+  reactions_enabled: "1"
+  input_position: "top"
+  lang: "ko"
+
+analytics:
+  enabled: false
+  # google, umami, plausible 중 하나. 비우면 로드하지 않습니다.
+  provider: ""
+  google_measurement_id: ""
+  umami_script_url: ""
+  umami_website_id: ""
+  plausible_domain: ""
+  plausible_script_url: "https://plausible.io/js/script.js"
+
+# 전체 https URL이 있을 때만 홈/Contact 링크를 표시합니다.
+newsletter_url: ""
+contact_form_url: ""

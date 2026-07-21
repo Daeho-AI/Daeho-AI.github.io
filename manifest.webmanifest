@@ -1,0 +1,26 @@
+---
+layout: null
+permalink: /manifest.webmanifest
+sitemap: false
+---
+{
+  "name": {{ site.data.site.title | default: site.title | jsonify }},
+  "short_name": {{ site.data.profile.display_name | default: site.data.profile.name | default: site.title | truncate: 24 | jsonify }},
+  "description": {{ site.data.site.description | default: site.description | jsonify }},
+  "id": {{ '/' | relative_url | jsonify }},
+  "start_url": {{ '/' | relative_url | jsonify }},
+  "scope": {{ '/' | relative_url | jsonify }},
+  "lang": {{ site.data.site.language | default: site.lang | default: 'ko' | jsonify }},
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8fafc",
+  "theme_color": {{ site.data.site.accent_color | default: '#1d4ed8' | jsonify }},
+  "icons": [
+    {
+      "src": {{ '/assets/images/favicon.svg' | relative_url | jsonify }},
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

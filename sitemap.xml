@@ -1,0 +1,33 @@
+---
+layout: null
+permalink: /sitemap.xml
+sitemap: false
+---
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for document in site.pages %}
+    {% unless document.sitemap == false or document.noindex == true or document.published == false %}
+      {% if document.url and document.url != '' %}
+        <url>
+          <loc>{{ document.url | absolute_url | xml_escape }}</loc>
+          {% if document.last_modified_at %}<lastmod>{{ document.last_modified_at | date_to_xmlschema }}</lastmod>{% elsif document.date %}<lastmod>{{ document.date | date_to_xmlschema }}</lastmod>{% endif %}
+        </url>
+      {% endif %}
+    {% endunless %}
+  {% endfor %}
+  {% for post in site.posts %}
+    {% unless post.published == false or post.noindex == true %}
+      <url>
+        <loc>{{ post.url | absolute_url | xml_escape }}</loc>
+        <lastmod>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</lastmod>
+      </url>
+    {% endunless %}
+  {% endfor %}
+  {% for project in site.projects %}
+    {% unless project.published == false or project.noindex == true %}
+      <url>
+        <loc>{{ project.url | absolute_url | xml_escape }}</loc>
+        {% if project.last_modified_at %}<lastmod>{{ project.last_modified_at | date_to_xmlschema }}</lastmod>{% elsif project.date %}<lastmod>{{ project.date | date_to_xmlschema }}</lastmod>{% endif %}
+      </url>
+    {% endunless %}
+  {% endfor %}
+</urlset>

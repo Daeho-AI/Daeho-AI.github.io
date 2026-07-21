@@ -10,6 +10,26 @@ interface RuntimeConfig extends EditorConfig {
   ownerLogin: string;
 }
 
+interface OwnerContextState {
+  active?: boolean;
+  framed?: boolean;
+}
+
+function earlyOwnerContext(): OwnerContextState | null {
+  const value = (window as Window & { DaehoOwnerContext?: unknown }).DaehoOwnerContext;
+  return typeof value === "object" && value !== null ? (value as OwnerContextState) : null;
+}
+
+function framedDocument(): boolean {
+  const early = earlyOwnerContext();
+  if (early?.framed === true) return true;
+  try {
+    return window.top !== window.self;
+  } catch {
+    return true;
+  }
+}
+
 function readConfig(root: HTMLElement): RuntimeConfig {
   return {
     apiBase: root.dataset.apiBase?.trim() || "",
@@ -24,6 +44,12 @@ function readConfig(root: HTMLElement): RuntimeConfig {
 
 function activationRequested(): boolean {
   return new URLSearchParams(window.location.search).get("edit") === "1";
+}
+
+function reloadIntoOwnerContext(): void {
+  const url = new URL(window.location.href);
+  url.searchParams.set("edit", "1");
+  window.location.assign(url.toString());
 }
 
 function ownerMatches(expectedOwner: string, actualLogin: string): boolean {
@@ -52,6 +78,7 @@ function boot(): void {
   root.hidden = true;
   root.setAttribute("aria-hidden", "true");
   if (root.dataset.enabled !== "true") return;
+  if (framedDocument()) return;
 
   let activationStarted = false;
 
@@ -196,11 +223,12 @@ function boot(): void {
   document.addEventListener("keydown", (event) => {
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "e") {
       event.preventDefault();
-      void activate();
+      if (activationRequested() || earlyOwnerContext()?.active === true) void activate();
+      else reloadIntoOwnerContext();
     }
   });
 
-  if (activationRequested()) void activate();
+  if (activationRequested() || readSessionId()) void activate();
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });

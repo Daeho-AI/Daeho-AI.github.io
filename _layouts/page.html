@@ -1,21 +1,16 @@
 ---
 layout: default
 ---
-<div class="container page-shell">
-  <div class="{% if page.show_sidebar %}content-grid{% else %}page-single{% endif %}">
-    <article class="page main-column" aria-labelledby="page-title">
-      <header class="page-header">
-        <h1 id="page-title">{{ page.title | escape }}</h1>
-        {% if page.description and page.show_description != false %}
-          <p class="page-description">{{ page.description | escape }}</p>
-        {% endif %}
-      </header>
-      <div class="page-content{% unless page.prose == false %} prose{% endunless %}">
-        {{ content }}
-      </div>
-    </article>
-    {% if page.show_sidebar %}
-      {% include sidebar.html %}
-    {% endif %}
-  </div>
+<div class="container page-layout{% if page.show_sidebar %} page-layout-sidebar{% endif %}">
+  <article class="page-content-shell" aria-labelledby="page-title">
+    {% unless page.hide_breadcrumbs %}{% include breadcrumbs.html %}{% endunless %}
+    <header class="page-header">
+      {% if page.eyebrow %}<span class="eyebrow">{{ page.eyebrow | escape }}</span>{% endif %}
+      <h1 id="page-title">{{ page.title | escape }}</h1>
+      {% if page.description and page.show_description != false %}<p class="page-description">{{ page.description | escape }}</p>{% endif %}
+    </header>
+    <div class="page-content{% unless page.prose == false %} prose{% endunless %}">{{ content }}</div>
+    {% include edit-links.html %}
+  </article>
+  {% if page.show_sidebar %}{% include sidebar.html %}{% endif %}
 </div>

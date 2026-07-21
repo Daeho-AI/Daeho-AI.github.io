@@ -4,6 +4,10 @@
   display: none !important;
 }
 
+html[data-owner-framed="true"] .owner-editor {
+  display: none !important;
+}
+
 .owner-editor {
   --owner-editor-danger: #b42318;
   --owner-editor-success: #067647;

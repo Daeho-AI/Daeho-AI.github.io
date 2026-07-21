@@ -1,0 +1,34 @@
+---
+layout: null
+permalink: /posts.json
+sitemap: false
+---
+{% assign empty_array = '' | split: '' %}
+{% assign emitted_post = false %}
+[
+{% for post in site.posts %}
+  {% unless post.published == false %}
+    {% assign entry_description = post.description | default: post.excerpt | strip_html | strip_newlines | normalize_whitespace | truncate: 240 %}
+    {% assign plain_text = post.content | strip_html | strip_newlines | normalize_whitespace %}
+    {% assign character_count = plain_text | size %}
+    {% assign reading_time = character_count | plus: 499 | divided_by: 500 %}
+    {% if reading_time < 1 %}{% assign reading_time = 1 %}{% endif %}
+    {% assign cover_value = post.cover | default: post.thumbnail | default: '' %}
+    {% assign cover_url = '' %}
+    {% if cover_value != '' %}{% if cover_value contains '://' %}{% assign cover_url = cover_value %}{% else %}{% assign cover_url = cover_value | relative_url %}{% endif %}{% endif %}
+    {% if emitted_post %},{% endif %}
+    {
+      "title": {{ post.title | default: '' | jsonify }},
+      "url": {{ post.url | relative_url | jsonify }},
+      "description": {{ entry_description | jsonify }},
+      "date": {{ post.date | date_to_xmlschema | jsonify }},
+      "categories": {{ post.categories | default: empty_array | jsonify }},
+      "tags": {{ post.tags | default: empty_array | jsonify }},
+      "series": {{ post.series | default: '' | jsonify }},
+      "cover": {{ cover_url | jsonify }},
+      "reading_time": {{ reading_time }}
+    }
+    {% assign emitted_post = true %}
+  {% endunless %}
+{% endfor %}
+]

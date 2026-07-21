@@ -1,0 +1,17 @@
+{% assign category_name = include.name %}
+{% assign category_posts = include.posts %}
+{% assign category_meta = include.meta %}
+<section class="taxonomy-section" id="category-{{ include.index }}" data-taxonomy-value="{{ category_name | escape }}">
+  <header class="taxonomy-heading">
+    <div>
+      <h2>{{ category_name | escape }}</h2>
+      {% if category_meta and category_meta.description != '' %}<p>{{ category_meta.description | escape }}</p>{% endif %}
+    </div>
+    <a href="{{ '/blog/' | relative_url }}?category={{ category_name | url_encode }}">게시글 {{ category_posts.size }}개 보기</a>
+  </header>
+  <ol class="taxonomy-post-list">
+    {% for post in category_posts %}
+      <li><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: site.data.site.date_format | default: '%Y.%m.%d' }}</time><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></li>
+    {% endfor %}
+  </ol>
+</section>

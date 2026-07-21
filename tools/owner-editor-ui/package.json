@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "esbuild src/index.ts --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=../../assets/js/owner-editor.bundle.js",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "test": "node test/frontmatter.test.mjs"
   },
   "dependencies": {
     "yaml": "^2.8.1"

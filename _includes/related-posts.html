@@ -1,0 +1,56 @@
+{% assign related_limit = site.data.site.related_posts_limit | default: 3 %}
+{% assign related_count = 0 %}
+{% capture related_items %}
+  {% if page.series and page.series != '' %}
+    {% for candidate in site.posts %}
+      {% if related_count < related_limit and candidate.url != page.url and candidate.series == page.series %}
+        {% include post-list-item.html post=candidate %}
+        {% assign related_count = related_count | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% for candidate in site.posts %}
+    {% assign same_series = false %}
+    {% if page.series and page.series != '' and candidate.series == page.series %}{% assign same_series = true %}{% endif %}
+    {% if related_count < related_limit and candidate.url != page.url and same_series == false %}
+      {% assign shared_tag = false %}
+      {% for tag in page.tags %}{% if candidate.tags contains tag %}{% assign shared_tag = true %}{% endif %}{% endfor %}
+      {% if shared_tag %}
+        {% include post-list-item.html post=candidate %}
+        {% assign related_count = related_count | plus: 1 %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {% for candidate in site.posts %}
+    {% assign same_series = false %}
+    {% if page.series and page.series != '' and candidate.series == page.series %}{% assign same_series = true %}{% endif %}
+    {% if related_count < related_limit and candidate.url != page.url and same_series == false %}
+      {% assign shared_tag = false %}
+      {% for tag in page.tags %}{% if candidate.tags contains tag %}{% assign shared_tag = true %}{% endif %}{% endfor %}
+      {% assign shared_category = false %}
+      {% for category in page.categories %}{% if candidate.categories contains category %}{% assign shared_category = true %}{% endif %}{% endfor %}
+      {% if shared_tag == false and shared_category %}
+        {% include post-list-item.html post=candidate %}
+        {% assign related_count = related_count | plus: 1 %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {% for candidate in site.posts %}
+    {% assign same_series = false %}
+    {% if page.series and page.series != '' and candidate.series == page.series %}{% assign same_series = true %}{% endif %}
+    {% if related_count < related_limit and candidate.url != page.url and same_series == false %}
+      {% assign shared_tag = false %}
+      {% for tag in page.tags %}{% if candidate.tags contains tag %}{% assign shared_tag = true %}{% endif %}{% endfor %}
+      {% assign shared_category = false %}
+      {% for category in page.categories %}{% if candidate.categories contains category %}{% assign shared_category = true %}{% endif %}{% endfor %}
+      {% if shared_tag == false and shared_category == false %}
+        {% include post-list-item.html post=candidate %}
+        {% assign related_count = related_count | plus: 1 %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endcapture %}
+{% if related_count > 0 %}<section class="related-posts" aria-labelledby="related-title"><div class="section-heading"><div><span class="eyebrow">Continue reading</span><h2 id="related-title">함께 읽기</h2></div></div><div class="post-list">{{ related_items }}</div></section>{% endif %}

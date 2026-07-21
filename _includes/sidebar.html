@@ -1,92 +1,24 @@
 {% assign profile = site.data.profile %}
-{% assign profile_name = profile.display_name | default: profile.name | default: site.title %}
-{% assign profile_bio = profile.short_bio | default: profile.bio %}
-{% assign profile_image = profile.profile_image | strip %}
-{% if profile_image == '' %}
-  {% assign profile_image_src = '/assets/images/profile-placeholder.svg' | relative_url %}
-{% elsif profile_image contains '://' %}
-  {% assign profile_image_src = profile_image %}
-{% else %}
-  {% assign profile_image_src = profile_image | relative_url %}
-{% endif %}
+{% assign profile_name = profile.display_name | default: profile.name | default: site.data.site.title | default: site.title %}
+{% assign profile_image = profile.profile_image | default: '' | strip %}
+{% if profile_image == '' %}{% assign profile_image_src = '/assets/images/profile-placeholder.svg' | relative_url %}{% elsif profile_image contains '://' %}{% assign profile_image_src = profile_image %}{% else %}{% assign profile_image_src = profile_image | relative_url %}{% endif %}
+{% assign profile_image_alt = profile.profile_image_alt | default: profile_name | append: ' 프로필 이미지' %}
 <aside class="sidebar" aria-label="블로그 사이드바">
-  <section class="sidebar-section profile-widget" aria-labelledby="sidebar-profile-title">
-    <img class="sidebar-profile-image"
-         src="{{ profile_image_src | escape }}"
-         alt="{{ profile_name | escape }} 프로필 이미지"
-         width="88"
-         height="88"
-         loading="lazy"
-         decoding="async">
-    <div>
-      <h2 id="sidebar-profile-title" class="sidebar-title">{{ profile_name | escape }}</h2>
-      {% if profile.headline and profile.headline != '' %}
-        <p class="sidebar-headline">{{ profile.headline | escape }}</p>
-      {% endif %}
-      {% if profile_bio and profile_bio != '' %}
-        <p class="sidebar-bio">{{ profile_bio | escape }}</p>
-      {% endif %}
-      {% if profile.github and profile.github != '' %}
-        <a class="sidebar-link" href="{{ profile.github | escape }}" target="_blank" rel="noopener noreferrer">
-          GitHub 방문하기
-        </a>
-      {% endif %}
-    </div>
+  <section class="sidebar-profile" aria-labelledby="sidebar-profile-title">
+    <img src="{{ profile_image_src | escape }}" alt="{{ profile_image_alt | escape }}" width="64" height="64" loading="lazy" decoding="async">
+    <div><h2 id="sidebar-profile-title">{{ profile_name | escape }}</h2>{% if profile.headline and profile.headline != '' %}<p class="sidebar-headline">{{ profile.headline | escape }}</p>{% endif %}{% if profile.short_bio and profile.short_bio != '' %}<p>{{ profile.short_bio | escape }}</p>{% endif %}<div class="sidebar-profile-links"><a class="text-link" href="{{ '/about/' | relative_url }}">프로필 보기 {% include icon.html name='arrow' %}</a><a href="{{ '/contact/' | relative_url }}">Contact</a>{% if profile.github and profile.github != '' %}<a href="{{ profile.github | escape }}" target="_blank" rel="noopener noreferrer">GitHub {% include icon.html name='external' %}</a>{% endif %}</div></div>
   </section>
 
-  {% assign category_list = site.categories | sort %}
-  {% if category_list.size > 0 %}
-    <section class="sidebar-section" aria-labelledby="sidebar-categories-title">
-      <h2 id="sidebar-categories-title" class="sidebar-title">카테고리</h2>
-      <ul class="sidebar-list category-list">
-        {% for category in category_list %}
-          {% capture category_anchor %}/archive/#category-{{ category[0] | slugify }}{% endcapture %}
-          <li>
-            <a href="{{ category_anchor | relative_url }}">
-              <span>{{ category[0] | escape }}</span>
-              <span class="item-count" aria-label="게시글 {{ category[1].size }}개">{{ category[1].size }}</span>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
-  {% endif %}
+  {% assign recommended = site.posts | where: 'featured', true %}{% if recommended.size == 0 %}{% assign recommended = site.posts | where: 'pinned', true %}{% endif %}{% assign recommended_limit = site.data.site.featured_posts_limit | default: 3 %}
+  {% if recommended.size > 0 %}<section class="sidebar-section"><h2>추천 글</h2><ol class="sidebar-posts">{% for post in recommended limit: recommended_limit %}<li><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: site.data.site.date_format }}</time></li>{% endfor %}</ol></section>{% endif %}
 
-  {% if site.posts.size > 0 %}
-    <section class="sidebar-section" aria-labelledby="sidebar-recent-title">
-      <h2 id="sidebar-recent-title" class="sidebar-title">최근 글</h2>
-      <ol class="sidebar-list recent-post-list">
-        {% for post in site.posts limit: 5 %}
-          <li>
-            <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
-            <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%Y.%m.%d' }}</time>
-          </li>
-        {% endfor %}
-      </ol>
-    </section>
-  {% endif %}
+  {% if site.categories.size > 0 %}<section class="sidebar-section"><div class="sidebar-heading"><h2>카테고리</h2><a href="{{ '/categories/' | relative_url }}">전체</a></div><ul class="sidebar-taxonomy">{% assign category_list = site.categories | sort %}{% for category in category_list limit: 7 %}<li><a href="{{ '/blog/' | relative_url }}?category={{ category[0] | url_encode }}"><span>{{ category[0] | escape }}</span><strong>{{ category[1].size }}</strong></a></li>{% endfor %}</ul></section>{% endif %}
 
-  {% assign skill_categories = site.data.skills.categories %}
-  {% assign has_sidebar_skills = false %}
-  {% for category in skill_categories %}
-    {% if category.items and category.items.size > 0 %}
-      {% assign has_sidebar_skills = true %}
-    {% endif %}
-  {% endfor %}
-  {% if has_sidebar_skills %}
-    <section class="sidebar-section" aria-labelledby="sidebar-skills-title">
-      <h2 id="sidebar-skills-title" class="sidebar-title">관심 분야</h2>
-      <ul class="tag-list compact-tag-list">
-        {% assign displayed_skill_count = 0 %}
-        {% for category in skill_categories %}
-          {% for skill in category.items %}
-            {% if displayed_skill_count < 12 %}
-              <li class="tag">{{ skill | escape }}</li>
-              {% assign displayed_skill_count = displayed_skill_count | plus: 1 %}
-            {% endif %}
-          {% endfor %}
-        {% endfor %}
-      </ul>
-    </section>
-  {% endif %}
+  {% assign sidebar_recent_limit = site.data.site.recent_posts_limit | default: 6 %}{% if page.url == '/blog/' and site.posts.size > 0 %}<section class="sidebar-section"><div class="sidebar-heading"><h2>최근 글</h2><a href="{{ '/archive/' | relative_url }}">아카이브</a></div><ol class="sidebar-posts">{% for post in site.posts limit: sidebar_recent_limit %}<li><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: site.data.site.date_format }}</time></li>{% endfor %}</ol></section>{% endif %}
+
+  {% if page.url == '/blog/' and site.tags.size > 0 %}<section class="sidebar-section"><div class="sidebar-heading"><h2>태그</h2><a href="{{ '/tags/' | relative_url }}">전체</a></div><ul class="tag-list compact-tag-list">{% assign tag_list = site.tags | sort %}{% for tag in tag_list limit: 10 %}<li><a class="tag" href="{{ '/blog/' | relative_url }}?tag={{ tag[0] | url_encode }}">{{ tag[0] | escape }}</a></li>{% endfor %}</ul></section>{% endif %}
+
+  {% if site.data.site.features.recently_viewed %}<section class="sidebar-section" data-recently-viewed hidden><div class="sidebar-heading"><h2>최근 본 글</h2><button class="text-button" type="button" data-clear-recent>지우기</button></div><ol class="sidebar-posts" data-recent-list></ol></section>{% endif %}
+
+  <section class="sidebar-subscribe"><span class="eyebrow">Updates</span><h2>새 글을 놓치지 마세요.</h2><p>외부 추적 없이 RSS로 새 글을 확인할 수 있습니다.</p><a class="button button-secondary" href="{{ '/feed.xml' | relative_url }}">{% include icon.html name='rss' %} RSS</a></section>
 </aside>

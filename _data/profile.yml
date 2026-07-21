@@ -1,13 +1,32 @@
-# 확인되지 않은 개인정보는 빈 문자열로 유지했습니다.
-# 값을 입력할 때 따옴표 안의 내용만 수정하면 됩니다.
+# 문서 제목, SEO 작성자 이름, 헤더에 사용합니다. 필수. 예: "Daeho-AI"
 name: "Daeho-AI"
+# 홈, 사이드바, 작성자 카드에 표시합니다. 비우면 name을 사용합니다.
 display_name: "Daeho-AI"
+# 홈 소개와 사이드바에 표시합니다. 비우면 해당 줄을 숨깁니다. 예: "AI Engineer"
 headline: ""
+# 홈과 사이드바의 짧은 소개입니다. 비우면 사이트 기본 설명을 사용합니다.
 short_bio: ""
+# About 페이지의 기본 소개입니다. 비우면 About Markdown 본문만 표시합니다.
 bio: ""
-location: ""
-email: ""
-github: "https://github.com/Daeho-AI"
-linkedin: ""
+# 프로필 이미지 경로입니다. 비우면 profile-placeholder.svg를 사용합니다.
 profile_image: ""
+# 프로필 이미지 대체 텍스트입니다. 비우면 display_name 기반 문구를 사용합니다.
+profile_image_alt: ""
+# 홈, About, Contact에 표시할 공개 위치입니다. 비우면 숨깁니다. 예: "Seoul, Korea"
+location: ""
+# Contact와 버튼에 사용할 공개 이메일입니다. 비우면 이메일 UI를 숨깁니다.
+email: ""
+# 헤더·사이드바·Contact에서 사용하는 전체 GitHub URL입니다.
+github: "https://github.com/Daeho-AI"
+# 공개 LinkedIn 전체 URL입니다. 비우면 관련 링크를 숨깁니다.
+linkedin: ""
+# About의 소속 정보입니다. 확인된 값만 입력하며, 비우면 숨깁니다.
+organization: ""
+# About의 역할 또는 직함입니다. 확인된 값만 입력하며, 비우면 숨깁니다.
+role: ""
+# About과 홈에 표시할 관심 분야 목록입니다. 없으면 빈 배열을 유지합니다.
+interests: []
+# 연락 가능 상태입니다. 비우면 상태 문구를 숨깁니다. 예: "협업 문의 가능"
 availability: ""
+# 공개 이력서 파일 또는 외부 URL입니다. 비우면 이력서 버튼을 숨깁니다.
+resume_url: ""

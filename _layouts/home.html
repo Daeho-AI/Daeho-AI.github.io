@@ -2,152 +2,100 @@
 layout: default
 ---
 {% assign profile = site.data.profile %}
-{% assign profile_name = profile.display_name | default: profile.name | default: site.title %}
-{% assign intro_text = profile.short_bio | default: site.description %}
-{% assign profile_image = profile.profile_image | strip %}
-{% if profile_image == '' %}
-  {% assign home_profile_image_src = '/assets/images/profile-placeholder.svg' | relative_url %}
-{% elsif profile_image contains '://' %}
-  {% assign home_profile_image_src = profile_image %}
-{% else %}
-  {% assign home_profile_image_src = profile_image | relative_url %}
-{% endif %}
-{% assign empty_array = '' | split: '' %}
-{% assign featured_projects = empty_array %}
-{% if site.projects %}
-  {% assign featured_projects = site.projects | where: 'featured', true | sort: 'order' %}
-{% endif %}
-{% assign skill_categories = site.data.skills.categories %}
-{% assign has_skills = false %}
-{% for category in skill_categories %}
-  {% if category.items and category.items.size > 0 %}
-    {% assign has_skills = true %}
-  {% endif %}
-{% endfor %}
+{% assign settings = site.data.site %}
+{% assign home = site.data.home %}
+{% assign sections = home.sections | sort: 'order' %}
+{% assign profile_name = profile.display_name | default: profile.name | default: settings.title | default: site.title %}
+{% assign intro_text = profile.short_bio | default: settings.description | default: site.description %}
+{% assign profile_image = profile.profile_image | default: '' | strip %}
+{% assign newsletter_url = site.data.integrations.newsletter_url | default: '' | strip %}
+{% assign newsletter_prefix = newsletter_url | slice: 0, 8 %}
+{% if profile_image == '' %}{% assign profile_image_src = '/assets/images/profile-placeholder.svg' | relative_url %}{% elsif profile_image contains '://' %}{% assign profile_image_src = profile_image %}{% else %}{% assign profile_image_src = profile_image | relative_url %}{% endif %}
+{% assign profile_image_alt = profile.profile_image_alt | default: profile_name | append: ' 프로필 이미지' %}
 
-<div class="container home-shell">
-  <div class="content-grid">
-    <div class="main-column">
-      <section class="home-intro" aria-labelledby="home-title">
-        <img class="home-profile-image"
-             src="{{ home_profile_image_src | escape }}"
-             alt="{{ profile_name | escape }} 프로필 이미지"
-             width="112"
-             height="112"
-             decoding="async">
-        <div class="home-intro-content">
-          <h1 id="home-title">{{ profile_name | escape }}</h1>
-          {% if profile.headline and profile.headline != '' %}
-            <p class="home-headline">{{ profile.headline | escape }}</p>
-          {% endif %}
-          {% if intro_text and intro_text != '' %}
-            <p class="home-summary">{{ intro_text | escape }}</p>
-          {% endif %}
-          <ul class="profile-facts" aria-label="프로필 정보">
-            {% if profile.location and profile.location != '' %}
-              <li><span class="fact-label">위치</span> {{ profile.location | escape }}</li>
-            {% endif %}
-            {% if profile.availability and profile.availability != '' %}
-              <li><span class="fact-label">현재 상태</span> {{ profile.availability | escape }}</li>
-            {% endif %}
-          </ul>
-          <div class="button-row">
-            {% if profile.github and profile.github != '' %}
-              <a class="button button-primary" href="{{ profile.github | escape }}" target="_blank" rel="noopener noreferrer">GitHub</a>
-            {% endif %}
-            {% if profile.email and profile.email != '' %}
-              <a class="button button-secondary" href="mailto:{{ profile.email | escape }}">이메일 보내기</a>
-            {% endif %}
-          </div>
-        </div>
-      </section>
+{% if home.announcement.enabled and home.announcement.text != '' %}
+  <aside class="announcement" aria-label="공지"><div class="container"><span>{{ home.announcement.label | default: '공지' | escape }}</span>{% if home.announcement.url != '' %}<a href="{{ home.announcement.url | relative_url }}">{{ home.announcement.text | escape }}</a>{% else %}<p>{{ home.announcement.text | escape }}</p>{% endif %}</div></aside>
+{% endif %}
 
-      {% assign supplied_content = content | strip %}
-      {% if supplied_content != '' %}
-        <div class="home-page-content prose">{{ content }}</div>
+<div class="container home-layout">
+  <div class="home-main">
+    {% for section in sections %}
+      {% if section.enabled %}
+        {% case section.id %}
+        {% when 'intro' %}
+          <section class="home-intro" aria-labelledby="home-title">
+            <div class="home-intro-copy">
+              <span class="eyebrow">Personal technology notes</span>
+              <h1 id="home-title">{{ profile_name | escape }}</h1>
+              {% if profile.headline and profile.headline != '' %}<p class="home-headline">{{ profile.headline | escape }}</p>{% endif %}
+              {% if intro_text and intro_text != '' %}<p class="home-summary">{{ intro_text | escape }}</p>{% endif %}
+              <dl class="profile-facts">
+                {% if profile.role and profile.role != '' %}<div><dt>역할</dt><dd>{{ profile.role | escape }}</dd></div>{% endif %}
+                {% if profile.location and profile.location != '' %}<div><dt>위치</dt><dd>{{ profile.location | escape }}</dd></div>{% endif %}
+                {% if profile.availability and profile.availability != '' %}<div><dt>상태</dt><dd>{{ profile.availability | escape }}</dd></div>{% endif %}
+              </dl>
+              <div class="button-row">
+                <a class="button button-primary" href="{{ '/blog/' | relative_url }}">글 살펴보기 {% include icon.html name='arrow' %}</a>
+                <a class="button button-secondary" href="{{ '/about/' | relative_url }}">About</a>
+                <a class="button button-secondary" href="{{ '/contact/' | relative_url }}">Contact</a>
+                {% if profile.github and profile.github != '' %}<a class="button button-quiet" href="{{ profile.github | escape }}" target="_blank" rel="noopener noreferrer">GitHub {% include icon.html name='external' %}</a>{% endif %}
+              </div>
+            </div>
+            <figure class="home-portrait"><img src="{{ profile_image_src | escape }}" alt="{{ profile_image_alt | escape }}" width="176" height="176" decoding="async"><figcaption>{{ profile_name | escape }}</figcaption></figure>
+          </section>
+        {% when 'featured_posts' %}
+          {% assign featured_posts = site.posts | where: 'featured', true %}
+          {% if featured_posts.size == 0 %}{% assign featured_posts = site.posts | where: 'pinned', true %}{% endif %}
+          {% assign featured_limit = settings.featured_posts_limit | default: section.limit | default: 3 %}
+          {% if featured_posts.size > 0 %}
+            <section class="home-section featured-section" aria-labelledby="featured-title">
+              {% include section-heading.html id='featured-title' title=section.title description=section.description url='/blog/' link_label='전체 글' %}
+              <div class="featured-editorial">
+                {% for post in featured_posts limit: featured_limit %}{% include post-card.html post=post featured=forloop.first %}{% endfor %}
+              </div>
+            </section>
+          {% endif %}
+        {% when 'recent_posts' %}
+          {% assign recent_limit = settings.recent_posts_limit | default: section.limit | default: 6 %}
+          <section class="home-section" aria-labelledby="recent-posts-title">
+            {% include section-heading.html id='recent-posts-title' title=section.title description=section.description url='/blog/' link_label='전체 글' %}
+            {% if site.posts.size > 0 %}<div class="post-list editorial-list">{% for post in site.posts limit: recent_limit %}{% include post-list-item.html post=post %}{% endfor %}</div>{% else %}{% include empty-state.html title='아직 공개된 게시글이 없습니다.' description='새 글이 공개되면 이곳에서 최신 기록을 확인할 수 있습니다.' link_url='/blog/' link_label='블로그 페이지 보기' %}{% endif %}
+          </section>
+        {% when 'categories' %}
+          {% if site.categories.size > 0 %}
+            <section class="home-section taxonomy-explorer" aria-labelledby="home-categories-title">
+              {% include section-heading.html id='home-categories-title' title=section.title description=section.description url='/categories/' link_label='모든 카테고리' %}
+              <ul class="category-link-grid">{% assign sorted_categories = site.categories | sort %}{% for category in sorted_categories limit: section.limit %}<li><a href="{{ '/blog/' | relative_url }}?category={{ category[0] | url_encode }}"><span>{{ category[0] | escape }}</span><strong>{{ category[1].size }}</strong></a></li>{% endfor %}</ul>
+            </section>
+          {% endif %}
+        {% when 'projects' %}
+          {% assign featured_projects = site.projects | where: 'featured', true | sort: 'order' %}
+          {% if featured_projects.size == 0 %}{% assign featured_projects = site.projects | sort: 'order' %}{% endif %}
+          <section class="home-section" aria-labelledby="featured-projects-title">
+            {% include section-heading.html id='featured-projects-title' title=section.title description=section.description url='/projects/' link_label='전체 프로젝트' %}
+            {% if featured_projects.size > 0 %}<div class="project-grid">{% for project in featured_projects limit: section.limit %}{% include project-card.html project=project %}{% endfor %}</div>{% else %}{% include empty-state.html title='공개된 프로젝트를 준비 중입니다.' description='프로젝트가 등록되면 상태, 역할과 기술 정보를 함께 확인할 수 있습니다.' link_url='/projects/' link_label='프로젝트 페이지 보기' %}{% endif %}
+          </section>
+        {% when 'focus' %}
+          {% assign skill_categories = site.data.skills.categories %}
+          {% assign has_focus = false %}{% if profile.interests.size > 0 or skill_categories.size > 0 %}{% assign has_focus = true %}{% endif %}
+          {% if has_focus %}
+            <section class="home-section focus-section" aria-labelledby="focus-title">
+              {% include section-heading.html id='focus-title' title=section.title description=section.description %}
+              <div class="focus-groups">
+                {% if profile.interests.size > 0 %}<section><h3>관심 분야</h3><ul class="topic-list">{% for interest in profile.interests limit: section.limit %}<li>{{ interest | escape }}</li>{% endfor %}</ul></section>{% endif %}
+                {% for category in skill_categories %}{% if category.items.size > 0 %}<section><h3>{{ category.name | escape }}</h3><ul class="tag-list">{% for skill in category.items %}<li class="tag">{{ skill | escape }}</li>{% endfor %}</ul></section>{% endif %}{% endfor %}
+              </div>
+            </section>
+          {% endif %}
+        {% when 'contact' %}
+          <section class="home-section home-follow" aria-labelledby="home-follow-title">
+            <div><span class="eyebrow">Keep in touch</span><h2 id="home-follow-title">{{ section.title | escape }}</h2><p>{{ section.description | escape }}</p></div>
+            <div class="button-row">{% if newsletter_prefix == 'https://' %}<a class="button button-primary" href="{{ newsletter_url | escape }}" target="_blank" rel="noopener noreferrer">Newsletter {% include icon.html name='external' %}</a>{% endif %}<a class="button{% if newsletter_prefix == 'https://' %} button-secondary{% else %} button-primary{% endif %}" href="{{ '/feed.xml' | relative_url }}">{% include icon.html name='rss' %} RSS 구독</a><a class="button button-secondary" href="{{ '/contact/' | relative_url }}">연락 채널</a></div>
+          </section>
+        {% endcase %}
       {% endif %}
-
-      <section class="home-section" aria-labelledby="recent-posts-title">
-        <div class="section-heading">
-          <h2 id="recent-posts-title">최근 게시글</h2>
-          <a href="{{ '/blog/' | relative_url }}">모든 글 보기</a>
-        </div>
-        {% if site.posts.size > 0 %}
-          <div class="post-list">
-            {% for post in site.posts limit: 5 %}
-              {% include post-card.html post=post %}
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="empty-state" role="status">
-            <p>아직 등록된 글이 없습니다.</p>
-          </div>
-        {% endif %}
-      </section>
-
-      <section class="home-section" aria-labelledby="featured-projects-title">
-        <div class="section-heading">
-          <h2 id="featured-projects-title">주요 프로젝트</h2>
-          <a href="{{ '/projects/' | relative_url }}">모든 프로젝트 보기</a>
-        </div>
-        {% if featured_projects.size > 0 %}
-          <div class="project-list">
-            {% for project in featured_projects %}
-              {% include project-card.html project=project %}
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="empty-state" role="status">
-            <p>프로젝트를 준비 중입니다.</p>
-          </div>
-        {% endif %}
-      </section>
-
-      <section class="home-section" aria-labelledby="skills-title">
-        <div class="section-heading">
-          <h2 id="skills-title">관심 분야와 기술</h2>
-        </div>
-        {% if has_skills %}
-          <div class="skill-groups">
-            {% for category in skill_categories %}
-              {% if category.items and category.items.size > 0 %}
-                <section class="skill-group" aria-labelledby="skill-category-{{ forloop.index }}">
-                  <h3 id="skill-category-{{ forloop.index }}">{{ category.name | escape }}</h3>
-                  <ul class="tag-list">
-                    {% for skill in category.items %}
-                      <li class="tag">{{ skill | escape }}</li>
-                    {% endfor %}
-                  </ul>
-                </section>
-              {% endif %}
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="empty-state">
-            <p>관심 분야와 기술 목록을 정리하고 있습니다.</p>
-          </div>
-        {% endif %}
-      </section>
-
-      <section class="home-section home-contact" aria-labelledby="home-contact-title">
-        <div>
-          <h2 id="home-contact-title">링크와 연락처</h2>
-          <p>아래에 공개된 채널을 통해 더 자세한 정보를 확인할 수 있습니다.</p>
-        </div>
-        <div class="button-row">
-          {% if profile.github and profile.github != '' %}
-            <a class="button button-primary" href="{{ profile.github | escape }}" target="_blank" rel="noopener noreferrer">GitHub</a>
-          {% endif %}
-          {% if profile.linkedin and profile.linkedin != '' %}
-            <a class="button button-secondary" href="{{ profile.linkedin | escape }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          {% endif %}
-          {% if profile.email and profile.email != '' %}
-            <a class="button button-secondary" href="mailto:{{ profile.email | escape }}">이메일 보내기</a>
-          {% endif %}
-        </div>
-      </section>
-    </div>
-
-    {% include sidebar.html %}
+    {% endfor %}
+    {% assign supplied_content = content | strip %}{% if supplied_content != '' %}<div class="home-page-content prose">{{ content }}</div>{% endif %}
   </div>
+  {% if settings.features.sidebar %}{% include sidebar.html %}{% endif %}
 </div>

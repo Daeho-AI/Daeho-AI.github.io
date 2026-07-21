@@ -1,24 +1,51 @@
+# primary: true는 데스크톱 헤더에 직접 표시하며, 나머지는 More 메뉴에 표시합니다.
 - label: "Home"
   url: "/"
+  primary: true
   new_tab: false
-  order: 1
-
+  order: 10
 - label: "Blog"
   url: "/blog/"
+  primary: true
   new_tab: false
-  order: 2
-
+  order: 20
 - label: "Projects"
   url: "/projects/"
+  primary: true
   new_tab: false
-  order: 3
-
+  order: 30
 - label: "About"
   url: "/about/"
+  primary: true
   new_tab: false
-  order: 4
-
+  order: 40
+- label: "Archive"
+  url: "/archive/"
+  primary: false
+  new_tab: false
+  order: 50
+- label: "Categories"
+  url: "/categories/"
+  primary: false
+  new_tab: false
+  order: 60
+- label: "Tags"
+  url: "/tags/"
+  primary: false
+  new_tab: false
+  order: 70
+- label: "Series"
+  url: "/series/"
+  primary: false
+  new_tab: false
+  order: 80
+- label: "Bookmarks"
+  url: "/bookmarks/"
+  primary: false
+  new_tab: false
+  order: 90
 - label: "Contact"
   url: "/contact/"
+  primary: false
   new_tab: false
-  order: 5
+  order: 100

@@ -1,0 +1,14 @@
+---
+layout: default
+---
+<div class="container page-layout">
+  <article class="page-content-shell archive-shell" aria-labelledby="page-title">
+    {% include breadcrumbs.html %}
+    <header class="page-header">
+      {% if page.eyebrow %}<span class="eyebrow">{{ page.eyebrow | escape }}</span>{% endif %}
+      <h1 id="page-title">{{ page.title | escape }}</h1>
+      {% if page.description %}<p class="page-description">{{ page.description | escape }}</p>{% endif %}
+    </header>
+    <div class="archive-content">{{ content }}</div>
+  </article>
+</div>

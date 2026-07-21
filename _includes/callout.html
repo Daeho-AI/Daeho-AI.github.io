@@ -1,0 +1,7 @@
+{% assign callout_type = include.type | default: 'note' | downcase %}
+{% unless callout_type == 'note' or callout_type == 'tip' or callout_type == 'important' or callout_type == 'warning' or callout_type == 'caution' %}{% assign callout_type = 'note' %}{% endunless %}
+{% assign callout_title = include.title | default: '' %}
+<aside class="callout callout-{{ callout_type }}" role="note"{% if callout_title != '' %} aria-label="{{ callout_title | escape }}"{% endif %}>
+  {% if callout_title != '' %}<strong class="callout-title">{{ callout_title | escape }}</strong>{% endif %}
+  <div class="callout-content">{{ include.content | default: '' | markdownify }}</div>
+</aside>

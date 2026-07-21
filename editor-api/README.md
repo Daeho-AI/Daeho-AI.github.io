@@ -94,6 +94,35 @@ branch: "main"
 
 GitHub Pages 배포가 끝난 뒤 `https://daeho-ai.github.io/?edit=1`에서 로그인 버튼과 팝업 흐름을 확인합니다. 일반 URL에는 소유자 UI가 표시되지 않아야 합니다.
 
+## 4. 배포 전 Rate Limiting 운영 조치
+
+`/auth/start`는 로그인 전에도 OAuth state를 KV에 기록하므로 CORS나 `origin` query만으로 요청 남용을 막을 수 없습니다. 현재 저장소는 임시 메모리 카운터를 넣지 않습니다. Worker isolate마다 값이 달라지고 재시작 때 사라져 실제 보호처럼 보이기만 하기 때문입니다. 프로덕션 운영자는 [Cloudflare Workers Rate Limiting binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)을 배포 전에 연결해야 합니다.
+
+1. Wrangler를 Rate Limiting API가 지원되는 `4.36.0` 이상으로 올리고 lockfile을 갱신합니다.
+2. Cloudflare 계정 안에서 겹치지 않는 양의 정수 namespace ID 두 개를 정합니다. 아래 `1001`, `1002`는 예시이므로 그대로 재사용하지 않습니다.
+3. `wrangler.jsonc`에 다음 binding을 추가합니다.
+
+```jsonc
+"ratelimits": [
+  {
+    "name": "AUTH_RATE_LIMITER",
+    "namespace_id": "1001",
+    "simple": { "limit": 10, "period": 60 }
+  },
+  {
+    "name": "API_RATE_LIMITER",
+    "namespace_id": "1002",
+    "simple": { "limit": 120, "period": 60 }
+  }
+]
+```
+
+4. `Env`에 두 `RateLimit` binding을 선언합니다. `/auth/start`에서는 OAuth state를 만들기 전에 `AUTH_RATE_LIMITER.limit()`을 호출하고, `/api/*`에서는 KV 조회나 GitHub API 호출 전에 `API_RATE_LIMITER.limit()`을 호출합니다. 한 IP를 여러 사용자가 공유할 수 있으므로 임계값은 실제 로그를 보며 조정하되, 이 블로그는 소유자 한 명만 로그인하므로 초기 키는 `CF-Connecting-IP`와 route 종류를 조합할 수 있습니다. bearer나 GitHub token 원문은 key 또는 로그에 남기지 않습니다.
+5. 거부 시 `429`와 `Retry-After`를 반환하는 단위 테스트를 추가하고 `npm run check`, `npm test`, `npx wrangler deploy` 순서로 배포합니다.
+6. Workers Logs에서 `/auth/start`와 `/api/*`의 `429`를 확인하고, 정상 소유자 로그인이 막히거나 여러 Cloudflare location에서 공격이 분산되면 계정의 WAF Rate Limiting rule도 함께 적용합니다.
+
+이 binding과 호출 코드를 실제 Cloudflare 계정 값으로 연결하기 전까지는 **애플리케이션 수준 rate limit이 적용된 것으로 간주하지 않습니다.** Origin 검증은 브라우저의 교차 출처 읽기를 막는 장치이지, 비브라우저 요청의 사용량 제한이 아닙니다.
+
 ## 개발과 테스트
 
 ```powershell

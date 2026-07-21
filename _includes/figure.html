@@ -1,0 +1,8 @@
+{% assign figure_src = include.src | default: '' %}
+{% assign figure_alt = include.alt | default: '' %}
+{% if figure_src != '' %}
+<figure class="content-figure">
+  <img src="{% if figure_src contains '://' %}{{ figure_src | escape }}{% else %}{{ figure_src | relative_url }}{% endif %}" alt="{{ figure_alt | escape }}"{% if include.width %} width="{{ include.width | escape }}"{% endif %}{% if include.height %} height="{{ include.height | escape }}"{% endif %} loading="lazy" decoding="async">
+  {% if include.caption and include.caption != '' %}<figcaption>{{ include.caption | escape }}</figcaption>{% endif %}
+</figure>
+{% endif %}

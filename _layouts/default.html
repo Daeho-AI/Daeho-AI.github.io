@@ -1,48 +1,19 @@
 ---
 ---
-{% assign profile = site.data.profile %}
-{% assign site_name = profile.name | default: profile.display_name | default: site.title %}
-{% assign meta_title = page.title | default: site_name %}
-{% assign asset_version = site.time | date: '%s' %}
-{% capture document_title %}{% if meta_title == site_name %}{{ site_name }}{% else %}{{ meta_title }} | {{ site_name }}{% endif %}{% endcapture %}
-{% assign document_title = document_title | strip %}
-{% assign meta_description = page.description | default: page.summary | default: page.excerpt | default: profile.short_bio | default: site.description | strip_html | strip_newlines | normalize_whitespace | truncate: 160 %}
-{% assign meta_image = page.thumbnail | default: page.image | default: site.og_image | default: '/assets/images/default-og-image.svg' %}
-{% if meta_image contains '://' %}
-  {% assign open_graph_image = meta_image %}
-{% else %}
-  {% assign open_graph_image = meta_image | absolute_url %}
-{% endif %}
 <!doctype html>
-<html lang="{{ page.lang | default: site.lang | default: 'ko' }}">
+<html lang="{{ page.lang | default: site.data.site.language | default: site.lang | default: 'ko' }}" data-theme="{{ site.data.site.default_theme | default: 'system' }}">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light dark">
-    <meta name="theme-color" content="#ffffff">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'{% if site.data.editor.enabled and site.data.editor.api_base_url != '' %} {{ site.data.editor.api_base_url | escape }}{% endif %}; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'">
-    <title>{{ document_title | escape }}</title>
-    <meta name="description" content="{{ meta_description | escape }}">
-    <link rel="canonical" href="{{ page.url | absolute_url }}">
-
-    <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
-    <meta property="og:site_name" content="{{ site_name | escape }}">
-    <meta property="og:title" content="{{ document_title | escape }}">
-    <meta property="og:description" content="{{ meta_description | escape }}">
-    <meta property="og:url" content="{{ page.url | absolute_url }}">
-    <meta property="og:image" content="{{ open_graph_image | escape }}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ document_title | escape }}">
-    <meta name="twitter:description" content="{{ meta_description | escape }}">
-    <meta name="twitter:image" content="{{ open_graph_image | escape }}">
-
-    <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
-    <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}?v={{ asset_version }}">
-    <link rel="stylesheet" href="{{ '/assets/css/owner-editor.css' | relative_url }}?v={{ asset_version }}">
-    <script src="{{ '/assets/js/main.js' | relative_url }}?v={{ asset_version }}" defer></script>
-    <script src="{{ '/assets/js/owner-editor.bundle.js' | relative_url }}?v={{ asset_version }}" defer></script>
+    {% include head.html %}
   </head>
-  <body class="layout-{{ page.layout | default: 'default' }}{% if page.body_class %} {{ page.body_class }}{% endif %}">
+  <body class="layout-{{ page.layout | default: 'default' }}{% if page.body_class %} {{ page.body_class }}{% endif %}"
+        data-page-url="{{ page.url | relative_url | escape }}"
+        data-canonical-url="{{ page.url | absolute_url | escape }}"
+        data-site-title="{{ site.data.profile.display_name | default: site.data.profile.name | default: site.title | escape }}"
+        data-search-enabled="{{ site.data.site.features.search | default: false }}"
+        data-bookmarks-enabled="{{ site.data.site.features.bookmarks | default: false }}"
+        data-recently-viewed-enabled="{{ site.data.site.features.recently_viewed | default: false }}"
+        data-pwa-enabled="{{ site.data.site.features.pwa | default: false }}"
+        data-service-worker-url="{{ '/service-worker.js' | relative_url }}">
     <a class="skip-link" href="#main-content">본문으로 바로 가기</a>
     <div class="site-shell">
       {% include header.html %}
@@ -51,6 +22,34 @@
       </main>
       {% include footer.html %}
     </div>
+
+    {% if site.data.site.features.search %}{% include search-dialog.html %}{% endif %}
+    <dialog class="lightbox-dialog" data-lightbox-dialog aria-label="이미지 확대 보기">
+      <button class="icon-button lightbox-close" type="button" data-lightbox-close aria-label="이미지 확대 보기 닫기">{% include icon.html name='close' %}</button>
+      <figure><img alt="" data-lightbox-image><figcaption data-lightbox-caption></figcaption></figure>
+    </dialog>
+    <div class="toast-region" data-toast-region role="status" aria-live="polite" aria-atomic="true"></div>
     {% include owner-editor.html %}
+    {% include analytics.html %}
+
+    <script src="{{ '/assets/js/main.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/navigation.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    {% if site.data.site.features.search %}<script src="{{ '/assets/js/search.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>{% endif %}
+    {% if site.data.site.features.bookmarks %}<script src="{{ '/assets/js/bookmark.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>{% endif %}
+    {% if site.data.site.features.recently_viewed %}<script src="{{ '/assets/js/recently-viewed.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>{% endif %}
+    {% if page.layout == 'post' %}
+      <script src="{{ '/assets/js/post.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+      <script src="{{ '/assets/js/toc.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+      <script src="{{ '/assets/js/code-block.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+      <script src="{{ '/assets/js/lightbox.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+      {% assign giscus = site.data.integrations.giscus %}{% if site.data.site.features.comments and page.comments and giscus.enabled and giscus.repo != '' and giscus.repo_id != '' and giscus.category != '' and giscus.category_id != '' %}<script src="{{ '/assets/js/comments.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>{% endif %}
+    {% endif %}
+    {% if page.page_script %}<script src="{{ page.page_script | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>{% endif %}
+    <script
+      src="{{ '/assets/js/owner-editor-loader.js' | relative_url }}?v={{ site.time | date: '%s' }}"
+      data-owner-editor-style="{{ '/assets/css/owner-editor.css' | relative_url }}?v={{ site.time | date: '%s' }}"
+      data-owner-editor-script="{{ '/assets/js/owner-editor.bundle.js' | relative_url }}?v={{ site.time | date: '%s' }}"
+      defer
+    ></script>
   </body>
 </html>

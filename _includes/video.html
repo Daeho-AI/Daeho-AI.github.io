@@ -1,0 +1,10 @@
+{% assign video_src = include.src | default: '' %}
+{% if video_src != '' %}
+<figure class="content-video">
+  <video controls preload="metadata"{% if include.poster and include.poster != '' %} poster="{% if include.poster contains '://' %}{{ include.poster | escape }}{% else %}{{ include.poster | relative_url }}{% endif %}"{% endif %}>
+    <source src="{% if video_src contains '://' %}{{ video_src | escape }}{% else %}{{ video_src | relative_url }}{% endif %}"{% if include.type and include.type != '' %} type="{{ include.type | escape }}"{% endif %}>
+    현재 브라우저는 HTML 비디오를 지원하지 않습니다. <a href="{% if video_src contains '://' %}{{ video_src | escape }}{% else %}{{ video_src | relative_url }}{% endif %}">영상 파일 열기</a>
+  </video>
+  {% if include.caption and include.caption != '' %}<figcaption>{{ include.caption | escape }}</figcaption>{% endif %}
+</figure>
+{% endif %}

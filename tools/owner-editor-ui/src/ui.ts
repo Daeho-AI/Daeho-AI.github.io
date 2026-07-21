@@ -62,6 +62,7 @@ export class OwnerEditorUI {
   private readonly fields: HTMLElement;
   private readonly toastElement: HTMLElement;
   private toastTimer = 0;
+  private panelReturnFocus: HTMLElement | null = null;
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -219,6 +220,14 @@ export class OwnerEditorUI {
   }
 
   openPanel(title: string, definitions: FieldDefinition[], submitLabel: string): void {
+    if (!this.panel.open) {
+      this.panelReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    }
+    document.dispatchEvent(
+      new CustomEvent("daeho:dialog-opening", {
+        detail: { dialog: this.panel, trigger: this.panelReturnFocus },
+      }),
+    );
     this.form.reset();
     this.panelStatus.hidden = true;
     this.panelStatus.textContent = "";
@@ -232,6 +241,7 @@ export class OwnerEditorUI {
     if (this.panel.open) this.panel.close();
     if (typeof this.panel.showModal === "function") this.panel.showModal();
     else this.panel.setAttribute("open", "");
+    document.body.classList.add("owner-editor-dialog-open");
 
     window.requestAnimationFrame(() => {
       this.fields.querySelector<HTMLElement>("input, textarea, button")?.focus();
@@ -239,11 +249,17 @@ export class OwnerEditorUI {
   }
 
   closePanel(): void {
+    const returnFocus = this.panelReturnFocus;
+    this.panelReturnFocus = null;
     if (this.panel.open && typeof this.panel.close === "function") this.panel.close();
     else this.panel.removeAttribute("open");
+    document.body.classList.remove("owner-editor-dialog-open");
     this.fields.replaceChildren();
     this.panelStatus.hidden = true;
     this.panelStatus.textContent = "";
+    if (returnFocus && document.contains(returnFocus)) {
+      window.requestAnimationFrame(() => returnFocus.focus());
+    }
   }
 
   setBusy(busy: boolean): void {

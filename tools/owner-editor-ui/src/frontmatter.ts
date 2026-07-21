@@ -2,12 +2,27 @@ import { parse, stringify } from "yaml";
 
 export interface NewPostValues {
   title: string;
+  subtitle: string;
   date: string;
   slug: string;
   description: string;
+  author: string;
   categories: string;
   tags: string;
+  series: string;
+  seriesOrder: string;
+  cover: string;
+  coverAlt: string;
+  featured: boolean;
+  pinned: boolean;
+  toc: boolean;
+  comments: boolean;
+  math: boolean;
+  mermaid: boolean;
   published: boolean;
+  noindex: boolean;
+  searchExclude: boolean;
+  canonicalUrl: string;
   body: string;
 }
 
@@ -63,23 +78,54 @@ export function createNewPostDocument(values: NewPostValues): NewPostDocument {
   const title = values.title.trim();
   const date = values.date.trim();
   const slug = normalizeSlug(values.slug);
+  const series = values.series.trim();
+  const seriesOrderSource = values.seriesOrder.trim();
+  const cover = values.cover.trim();
+  const coverAlt = values.coverAlt.trim();
+  const canonicalUrl = values.canonicalUrl.trim();
 
   if (!title) throw new Error("게시글 제목을 입력하세요.");
   if (!validDate(date)) throw new Error("작성일을 YYYY-MM-DD 형식으로 입력하세요.");
   if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
     throw new Error("영문 주소는 소문자 영문, 숫자, 하이픈으로 입력하세요.");
   }
+  if (seriesOrderSource && (!/^\d+$/.test(seriesOrderSource) || Number(seriesOrderSource) < 1)) {
+    throw new Error("시리즈 순서는 1 이상의 정수로 입력하세요.");
+  }
+  if (seriesOrderSource && !series) {
+    throw new Error("시리즈 순서를 사용하려면 시리즈 이름을 입력하세요.");
+  }
+  if (cover && !coverAlt) {
+    throw new Error("대표 이미지가 있으면 대체 텍스트를 입력하세요.");
+  }
+  if (canonicalUrl && !/^https:\/\/[^\s]+$/i.test(canonicalUrl)) {
+    throw new Error("Canonical URL은 전체 HTTPS 주소로 입력하세요.");
+  }
 
   const attributes = {
     layout: "post",
     lang: "ko",
     title,
-    date,
+    subtitle: values.subtitle.trim(),
     description: values.description.trim(),
+    date,
+    author: values.author.trim() || "Daeho-AI",
     categories: splitListInput(values.categories),
     tags: splitListInput(values.tags),
-    thumbnail: "",
+    series,
+    series_order: seriesOrderSource ? Number(seriesOrderSource) : null,
+    cover,
+    cover_alt: coverAlt,
+    featured: values.featured,
+    pinned: values.pinned,
+    toc: values.toc,
+    comments: values.comments,
+    math: values.math,
+    mermaid: values.mermaid,
     published: values.published,
+    noindex: values.noindex,
+    search_exclude: values.searchExclude,
+    canonical_url: canonicalUrl,
   };
   const yaml = stringify(attributes, { lineWidth: 0 }).trimEnd();
   const body = values.body.replace(/^\s*\n/, "").trimEnd();

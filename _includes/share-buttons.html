@@ -1,0 +1,4 @@
+<div class="post-tools" aria-label="게시글 도구">
+  {% if site.data.site.features.bookmarks %}{% include bookmark-button.html post=page %}{% endif %}
+  <button class="share-button" type="button" data-share-button data-share-title="{{ page.title | escape }}" data-share-url="{{ page.url | absolute_url | escape }}">{% include icon.html name='share' %}<span>공유</span></button>
+</div>

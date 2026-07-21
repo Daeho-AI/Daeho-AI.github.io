@@ -1,0 +1,2 @@
+{% assign toc_enabled = page.toc %}{% if toc_enabled == nil %}{% assign toc_enabled = site.data.site.features.table_of_contents %}{% endif %}
+{% if toc_enabled %}<aside class="post-toc" data-toc hidden aria-labelledby="toc-title"><button class="toc-toggle" type="button" data-toc-toggle aria-expanded="true" aria-controls="toc-list"><span id="toc-title">이 글의 목차</span>{% include icon.html name='chevron' %}</button><nav id="toc-list" aria-label="게시글 목차"><ol data-toc-list></ol></nav></aside>{% endif %}

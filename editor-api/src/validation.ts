@@ -89,15 +89,226 @@ function isValidIsoDate(value: string): boolean {
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }
 
+function frontMatterDatePart(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const match = value
+    .trim()
+    .match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?(?:\s*(Z|[+-]\d{2}:?\d{2}))?)?$/);
+  if (!match || !isValidIsoDate(match[1])) return "";
+  if (match[2] === undefined) return match[1];
+
+  const hour = Number(match[2]);
+  const minute = Number(match[3]);
+  const second = match[4] === undefined ? 0 : Number(match[4]);
+  if (hour > 23 || minute > 59 || second > 59) return "";
+
+  const zone = match[5] || "";
+  if (zone && zone !== "Z") {
+    const zoneDigits = zone.slice(1).replace(":", "");
+    const zoneHour = Number(zoneDigits.slice(0, 2));
+    const zoneMinute = Number(zoneDigits.slice(2, 4));
+    if (zoneHour > 14 || zoneMinute > 59 || (zoneHour === 14 && zoneMinute !== 0)) return "";
+  }
+  return match[1];
+}
+
+function hasOwn(record: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function validateOptionalString(record: Record<string, unknown>, key: string, label = key): void {
+  if (hasOwn(record, key) && typeof record[key] !== "string") {
+    badRequest("invalid_frontmatter_field", `${label} 값은 문자열이어야 합니다.`);
+  }
+}
+
+function validateStringArray(record: Record<string, unknown>, key: string): void {
+  if (!hasOwn(record, key)) return;
+  const value = record[key];
+  if (
+    !Array.isArray(value) ||
+    value.length > 100 ||
+    value.some((item) => typeof item !== "string" || !item.trim() || item.length > 200)
+  ) {
+    badRequest("invalid_frontmatter_array", `${key} 값은 비어 있지 않은 문자열 배열이어야 합니다.`);
+  }
+}
+
+function validateBooleanFields(record: Record<string, unknown>, fields: string[]): void {
+  for (const field of fields) {
+    if (hasOwn(record, field) && typeof record[field] !== "boolean") {
+      badRequest("invalid_frontmatter_boolean", `${field} 값은 true 또는 false여야 합니다.`);
+    }
+  }
+}
+
+function validateOptionalPositiveInteger(record: Record<string, unknown>, key: string): void {
+  if (!hasOwn(record, key) || record[key] === null || record[key] === "") return;
+  const value = record[key];
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1) {
+    badRequest("invalid_frontmatter_integer", `${key} 값은 1 이상의 정수여야 합니다.`);
+  }
+}
+
+function validateOptionalDate(record: Record<string, unknown>, key: string): void {
+  if (!hasOwn(record, key) || record[key] === null || record[key] === "") return;
+  if (!frontMatterDatePart(record[key])) {
+    badRequest("invalid_frontmatter_date", `${key} 날짜 형식이 올바르지 않습니다.`);
+  }
+}
+
+function validHttpsUrl(value: string): boolean {
+  if (!value || value !== value.trim() || /\s/.test(value)) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && Boolean(url.hostname) && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function validateOptionalHttpsUrl(record: Record<string, unknown>, key: string): void {
+  if (!hasOwn(record, key) || record[key] === "") return;
+  const value = record[key];
+  if (typeof value !== "string" || !validHttpsUrl(value)) {
+    badRequest("invalid_external_url", `${key} 값은 userinfo가 없는 전체 HTTPS URL이어야 합니다.`);
+  }
+}
+
+function validInternalUrl(value: string): boolean {
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\") || value.includes("\0")) {
+    return false;
+  }
+  try {
+    const url = new URL(value, "https://daeho-ai.github.io");
+    return url.origin === "https://daeho-ai.github.io";
+  } catch {
+    return false;
+  }
+}
+
+function validateOptionalInternalOrHttpsUrl(record: Record<string, unknown>, key: string): void {
+  if (!hasOwn(record, key) || record[key] === "") return;
+  const value = record[key];
+  if (typeof value !== "string" || (!validHttpsUrl(value) && !validInternalUrl(value))) {
+    badRequest("invalid_url", `${key} 값은 사이트 내부 절대 경로 또는 전체 HTTPS URL이어야 합니다.`);
+  }
+}
+
+function validCoverUrl(value: string): boolean {
+  if (validHttpsUrl(value)) return true;
+  const normalized = value.startsWith("/") ? value : `/${value}`;
+  if (!validInternalUrl(normalized)) return false;
+  try {
+    const url = new URL(normalized, "https://daeho-ai.github.io");
+    return url.pathname.startsWith("/assets/images/") && !url.search && !url.hash;
+  } catch {
+    return false;
+  }
+}
+
+function validateCover(record: Record<string, unknown>): void {
+  for (const [imageKey, altKey] of [["cover", "cover_alt"], ["thumbnail", "thumbnail_alt"]] as const) {
+    if (!hasOwn(record, imageKey) || record[imageKey] === "") continue;
+    const image = record[imageKey];
+    const alt = record[altKey];
+    if (typeof image !== "string" || !validCoverUrl(image)) {
+      badRequest("invalid_cover", `${imageKey} 값은 assets/images 내부 경로 또는 전체 HTTPS URL이어야 합니다.`);
+    }
+    if (typeof alt !== "string" || !alt.trim()) {
+      badRequest("missing_cover_alt", `${imageKey}가 있으면 ${altKey} 대체 텍스트가 필요합니다.`);
+    }
+  }
+}
+
+function rejectUnsafePresentationFields(record: Record<string, unknown>): void {
+  for (const field of ["permalink", "page_script"]) {
+    if (hasOwn(record, field)) {
+      badRequest("forbidden_frontmatter_field", `${field} 값은 소유자 편집 API에서 변경할 수 없습니다.`);
+    }
+  }
+}
+
+function validateDocumentSchema(path: string, attributes: Record<string, unknown>): void {
+  const isPost = POST_PATH.test(path);
+  const isProject = PROJECT_PATH.test(path);
+  const expectedLayout = isPost ? "post" : "project";
+  if (attributes.layout !== expectedLayout) {
+    badRequest("invalid_layout", `${path}의 layout은 ${expectedLayout}여야 합니다.`);
+  }
+  rejectUnsafePresentationFields(attributes);
+
+  if (typeof attributes.title !== "string" || !attributes.title.trim()) {
+    badRequest("missing_title", "게시글과 프로젝트에는 제목이 필요합니다.");
+  }
+  if ("published" in attributes && typeof attributes.published !== "boolean") {
+    badRequest("invalid_published", "published 값은 true 또는 false여야 합니다.");
+  }
+
+  if (isPost) {
+    for (const field of ["lang", "subtitle", "description", "author", "series", "cover", "cover_alt", "thumbnail", "thumbnail_alt", "canonical_url"]) {
+      validateOptionalString(attributes, field);
+    }
+    validateStringArray(attributes, "categories");
+    validateStringArray(attributes, "tags");
+    validateOptionalPositiveInteger(attributes, "series_order");
+    if (attributes.series_order !== null && attributes.series_order !== "" && hasOwn(attributes, "series_order")) {
+      if (typeof attributes.series !== "string" || !attributes.series.trim()) {
+        badRequest("missing_series", "series_order를 사용하려면 series 이름이 필요합니다.");
+      }
+    }
+    validateBooleanFields(attributes, [
+      "featured",
+      "pinned",
+      "toc",
+      "comments",
+      "math",
+      "mermaid",
+      "published",
+      "noindex",
+      "search_exclude",
+    ]);
+    validateOptionalDate(attributes, "last_modified_at");
+    validateOptionalHttpsUrl(attributes, "canonical_url");
+  } else if (isProject) {
+    for (const field of ["summary", "description", "period", "status", "role", "repository_url", "demo_url", "cover", "cover_alt", "thumbnail", "thumbnail_alt"]) {
+      validateOptionalString(attributes, field);
+    }
+    validateStringArray(attributes, "technologies");
+    validateStringArray(attributes, "related_posts");
+    validateOptionalPositiveInteger(attributes, "order");
+    validateBooleanFields(attributes, ["featured", "published", "noindex", "search_exclude"]);
+    validateOptionalDate(attributes, "last_modified_at");
+    validateOptionalHttpsUrl(attributes, "repository_url");
+    validateOptionalHttpsUrl(attributes, "demo_url");
+  }
+  validateCover(attributes);
+}
+
 function validateDataDocument(path: string, content: string): void {
   const value = parseYaml(content, path);
   if (path === "_data/navigation.yml" || path === "_data/social.yml") {
     if (!Array.isArray(value)) badRequest("invalid_yaml_shape", `${path}는 YAML 목록이어야 합니다.`);
+    value.forEach((item, index) => {
+      if (!isRecord(item)) badRequest("invalid_yaml_shape", `${path}의 ${index + 1}번째 항목은 YAML 객체여야 합니다.`);
+      if (path === "_data/navigation.yml") validateOptionalInternalOrHttpsUrl(item, "url");
+      else validateOptionalHttpsUrl(item, "url");
+    });
     return;
   }
   if (!isRecord(value)) badRequest("invalid_yaml_shape", `${path}는 YAML 객체여야 합니다.`);
   if (path === "_data/skills.yml" && !Array.isArray(value.categories)) {
     badRequest("invalid_skills", "기술 목록에는 categories 배열이 필요합니다.");
+  }
+  if (path === "_data/profile.yml") {
+    validateOptionalHttpsUrl(value, "github");
+    validateOptionalHttpsUrl(value, "linkedin");
+    validateOptionalInternalOrHttpsUrl(value, "resume_url");
+    if (hasOwn(value, "email") && value.email !== "") {
+      if (typeof value.email !== "string" || !/^[^\s@]+@[^\s@]+$/.test(value.email)) {
+        badRequest("invalid_email", "email 형식이 올바르지 않습니다.");
+      }
+    }
   }
 }
 
@@ -110,12 +321,16 @@ function validateMarkdownDocument(path: string, content: string): void {
     badRequest("invalid_frontmatter", "Markdown front matter는 YAML 객체여야 합니다.");
   }
 
-  if (POST_PATH.test(path) || PROJECT_PATH.test(path)) {
-    if (typeof attributes.title !== "string" || !attributes.title.trim()) {
-      badRequest("missing_title", "게시글과 프로젝트에는 제목이 필요합니다.");
+  if (POST_PATH.test(path) || PROJECT_PATH.test(path)) validateDocumentSchema(path, attributes);
+
+  if (path === "about.md" || path === "contact.md") {
+    if (attributes.layout !== "page") badRequest("invalid_layout", `${path}의 layout은 page여야 합니다.`);
+    if (hasOwn(attributes, "page_script")) {
+      badRequest("forbidden_frontmatter_field", "page_script 값은 소유자 편집 API에서 변경할 수 없습니다.");
     }
-    if ("published" in attributes && typeof attributes.published !== "boolean") {
-      badRequest("invalid_published", "published 값은 true 또는 false여야 합니다.");
+    const expectedPermalink = path === "about.md" ? "/about/" : "/contact/";
+    if (attributes.permalink !== expectedPermalink) {
+      badRequest("invalid_permalink", `${path}의 permalink는 ${expectedPermalink}여야 합니다.`);
     }
   }
 
@@ -124,8 +339,8 @@ function validateMarkdownDocument(path: string, content: string): void {
     if (!isValidIsoDate(postMatch[1])) {
       badRequest("invalid_post_date", "게시글 파일명의 날짜가 실제 달력 날짜여야 합니다.");
     }
-    const date = typeof attributes.date === "string" ? attributes.date : "";
-    if (date !== postMatch[1]) {
+    const date = frontMatterDatePart(attributes.date);
+    if (!date || date !== postMatch[1]) {
       badRequest("date_mismatch", "게시글 파일명의 날짜와 front matter 날짜가 같아야 합니다.");
     }
   }

@@ -1,0 +1,67 @@
+---
+layout: null
+permalink: /search.json
+sitemap: false
+---
+{% assign empty_array = '' | split: '' %}
+{% assign emitted_entry = false %}
+[
+{% for post in site.posts %}
+  {% unless post.published == false or post.noindex == true or post.search_exclude == true %}
+    {% assign entry_description = post.description | default: post.excerpt | strip_html | strip_newlines | normalize_whitespace | truncate: 240 %}
+    {% assign plain_text = post.content | strip_html | strip_newlines | normalize_whitespace %}
+    {% assign searchable_text = plain_text | truncate: 1400 %}
+    {% assign character_count = plain_text | size %}
+    {% assign reading_time = character_count | plus: 499 | divided_by: 500 %}
+    {% if reading_time < 1 %}{% assign reading_time = 1 %}{% endif %}
+    {% assign cover_value = post.og_image | default: post.cover | default: post.thumbnail | default: '' %}
+    {% assign cover_url = '' %}
+    {% if cover_value != '' %}{% if cover_value contains '://' %}{% assign cover_url = cover_value %}{% else %}{% assign cover_url = cover_value | relative_url %}{% endif %}{% endif %}
+    {% if emitted_entry %},{% endif %}
+    {
+      "type": {{ 'post' | jsonify }},
+      "title": {{ post.title | default: '' | jsonify }},
+      "url": {{ post.url | relative_url | jsonify }},
+      "description": {{ entry_description | jsonify }},
+      "date": {{ post.date | date_to_xmlschema | jsonify }},
+      "last_modified_at": {% if post.last_modified_at %}{{ post.last_modified_at | date_to_xmlschema | jsonify }}{% else %}{{ '' | jsonify }}{% endif %},
+      "categories": {{ post.categories | default: empty_array | jsonify }},
+      "tags": {{ post.tags | default: empty_array | jsonify }},
+      "series": {{ post.series | default: '' | jsonify }},
+      "searchable_text": {{ searchable_text | jsonify }},
+      "cover": {{ cover_url | jsonify }},
+      "reading_time": {{ reading_time }},
+      "featured": {% if post.featured == true or post.pinned == true %}true{% else %}false{% endif %}
+    }
+    {% assign emitted_entry = true %}
+  {% endunless %}
+{% endfor %}
+{% for project in site.projects %}
+  {% unless project.published == false or project.noindex == true or project.search_exclude == true %}
+    {% assign entry_description = project.summary | default: project.description | default: project.excerpt | strip_html | strip_newlines | normalize_whitespace | truncate: 240 %}
+    {% assign searchable_text = project.content | strip_html | strip_newlines | normalize_whitespace | truncate: 1400 %}
+    {% assign cover_value = project.og_image | default: project.cover | default: project.thumbnail | default: '' %}
+    {% assign cover_url = '' %}
+    {% if cover_value != '' %}{% if cover_value contains '://' %}{% assign cover_url = cover_value %}{% else %}{% assign cover_url = cover_value | relative_url %}{% endif %}{% endif %}
+    {% if emitted_entry %},{% endif %}
+    {
+      "type": {{ 'project' | jsonify }},
+      "title": {{ project.title | default: '' | jsonify }},
+      "url": {{ project.url | relative_url | jsonify }},
+      "description": {{ entry_description | jsonify }},
+      "date": {{ '' | jsonify }},
+      "last_modified_at": {% if project.last_modified_at %}{{ project.last_modified_at | date_to_xmlschema | jsonify }}{% else %}{{ '' | jsonify }}{% endif %},
+      "categories": {{ empty_array | jsonify }},
+      "tags": {{ project.technologies | default: empty_array | jsonify }},
+      "series": {{ '' | jsonify }},
+      "period": {{ project.period | default: '' | jsonify }},
+      "status": {{ project.status | default: '' | jsonify }},
+      "searchable_text": {{ searchable_text | jsonify }},
+      "cover": {{ cover_url | jsonify }},
+      "reading_time": 0,
+      "featured": {% if project.featured == true %}true{% else %}false{% endif %}
+    }
+    {% assign emitted_entry = true %}
+  {% endunless %}
+{% endfor %}
+]

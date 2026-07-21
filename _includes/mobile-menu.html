@@ -1,0 +1,32 @@
+{% assign mobile_current_url = page.url | replace: 'index.html', '' %}
+<div id="mobile-navigation" class="mobile-navigation" data-mobile-menu hidden aria-hidden="true">
+  <div class="mobile-navigation-panel" role="dialog" aria-modal="true" aria-label="모바일 메뉴">
+    <div class="mobile-navigation-header">
+      <span>메뉴</span>
+      <button class="icon-button" type="button" data-menu-close aria-label="메뉴 닫기">{% include icon.html name='close' %}</button>
+    </div>
+    <nav aria-label="모바일 주요 메뉴">
+      <ul>
+        {% for item in include.navigation %}
+          {% assign mobile_item_url = item.url | replace: 'index.html', '' %}
+          {% assign mobile_is_current = false %}
+          {% if mobile_current_url == mobile_item_url %}
+            {% assign mobile_is_current = true %}
+          {% elsif mobile_item_url != '/' and mobile_current_url contains mobile_item_url %}
+            {% assign mobile_is_current = true %}
+          {% endif %}
+          {% if mobile_item_url == '/blog/' and page.layout == 'post' %}{% assign mobile_is_current = true %}{% endif %}
+          {% if mobile_item_url == '/projects/' and page.layout == 'project' %}{% assign mobile_is_current = true %}{% endif %}
+          {% assign mobile_item_href = item.url %}{% unless mobile_item_href contains '://' %}{% assign mobile_item_href = mobile_item_href | relative_url %}{% endunless %}
+          <li><a href="{{ mobile_item_href | escape }}"{% if mobile_is_current %} aria-current="page"{% endif %}{% if item.new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ item.label | escape }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+    <div class="mobile-navigation-theme"><span>화면 테마</span>{% include theme-control.html %}</div>
+    <div class="mobile-navigation-meta">
+      <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      <a href="{{ '/privacy/' | relative_url }}"{% if mobile_current_url == '/privacy/' %} aria-current="page"{% endif %}>Privacy</a>
+    </div>
+  </div>
+  <button class="mobile-navigation-backdrop" type="button" data-menu-backdrop tabindex="-1" aria-hidden="true" aria-label="메뉴 닫기"></button>
+</div>
